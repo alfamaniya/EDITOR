@@ -29,5 +29,5 @@ ${html}
     renderPreview(event.data.code);
   });
 
-  window.parent.postMessage({ type: 'LIVE_PREVIEW_READY' }, window.location.origin);
+  window.parent.postMessage({ type: 'LIVE_PREVIEW_READY' }, '*');
 })();
