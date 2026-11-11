@@ -89,6 +89,44 @@ body {
   font-weight: 600;
 }
 
+.editor-tabs {
+  min-height: 42px;
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--border);
+  background: #0e1626;
+}
+
+.editor-tab {
+  position: relative;
+  min-width: 58px;
+  padding: 0 14px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.editor-tab:hover {
+  color: var(--text);
+}
+
+.editor-tab.is-active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+.editor-tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+}
+
 .editor-area,
 .preview-area {
   flex: 1;
