@@ -17,11 +17,15 @@
       <button class="history-button redo-button" type="button" aria-label="Redo">Redo</button>
     </header>
     <div class="editor-tabs" role="tablist" aria-label="Code languages">
-      <button class="editor-tab is-active" id="html-tab" type="button" role="tab" aria-selected="true" aria-controls="editor-area" data-language="html">HTML</button>
-      <button class="editor-tab" id="css-tab" type="button" role="tab" aria-selected="false" aria-controls="editor-area" data-language="css">CSS</button>
-      <button class="editor-tab" id="js-tab" type="button" role="tab" aria-selected="false" aria-controls="editor-area" data-language="js">JS</button>
+      <button class="editor-tab is-active" id="html-tab" type="button" role="tab" aria-selected="true" aria-controls="html-editor" data-language="html">HTML</button>
+      <button class="editor-tab" id="css-tab" type="button" role="tab" aria-selected="false" aria-controls="css-editor" data-language="css">CSS</button>
+      <button class="editor-tab" id="js-tab" type="button" role="tab" aria-selected="false" aria-controls="js-editor" data-language="js">JS</button>
     </div>
-    <div class="editor-area" id="editor-area" role="tabpanel" aria-labelledby="html-tab" aria-label="Code writing area"></div>
+    <div class="editor-area" id="editor-area">
+      <textarea class="code-input is-visible" id="html-editor" data-language="html" aria-label="HTML code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
+      <textarea class="code-input" id="css-editor" data-language="css" aria-label="CSS code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" hidden></textarea>
+      <textarea class="code-input" id="js-editor" data-language="js" aria-label="JavaScript code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" hidden></textarea>
+    </div>
   </section>
   <script src="script.js"></script>
 </body>
