@@ -13,9 +13,12 @@
   <main class="workspace" aria-label="Code workspace">
     <section class="panel code-panel" aria-labelledby="code-title">
       <header class="panel-header editor-header" aria-label="Editor Header">
-        <button class="history-button" type="button" aria-label="Undo">Undo</button>
+        <div class="editor-header-left">
+          <button class="history-button" type="button" aria-label="Undo">Undo</button>
+          <button class="history-button" type="button" aria-label="Clear">Clear</button>
+        </div>
         <h1 id="code-title">Code Editor</h1>
-        <button class="history-button" type="button" aria-label="Redo">Redo</button>
+        <button class="history-button redo-button" type="button" aria-label="Redo">Redo</button>
       </header>
       <div class="editor-tabs" role="tablist" aria-label="Code languages">
         <button class="editor-tab is-active" id="html-tab" type="button" role="tab"
