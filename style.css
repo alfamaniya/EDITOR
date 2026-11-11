@@ -7,7 +7,8 @@
   --muted: #8995a9;
   --accent: #8275f5;
   --split: 50%;
-  --fixed-bar-height: 48px;
+  --fixed-bar-height: 54px;
+  --panel-header-height: 50px;
   font-family: Arial, sans-serif;
 }
 
@@ -33,7 +34,7 @@ body {
   left: 0;
   right: 0;
   height: var(--fixed-bar-height);
-  background: var(--panel);
+  background: #151e30;
   border-color: var(--border);
   z-index: 10;
 }
@@ -73,12 +74,16 @@ body {
 }
 
 .panel-header {
-  height: 44px;
-  min-height: 44px;
+  height: var(--panel-header-height);
+  min-height: var(--panel-header-height);
   display: flex;
   align-items: center;
-  padding: 0 14px;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 16px;
+  background: #151e30;
   border-bottom: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
 }
 
 .panel-header h1,
@@ -87,6 +92,7 @@ body {
   color: var(--text);
   font-size: 13px;
   font-weight: 600;
+  letter-spacing: 0.2px;
 }
 
 .editor-tabs {
