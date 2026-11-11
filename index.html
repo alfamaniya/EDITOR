@@ -15,7 +15,16 @@
       <header class="panel-header">
         <h1 id="code-title">Code Editor</h1>
       </header>
-      <div class="editor-area" aria-label="Code writing area"></div>
+      <div class="editor-tabs" role="tablist" aria-label="Code languages">
+        <button class="editor-tab is-active" id="html-tab" type="button" role="tab"
+                aria-selected="true" aria-controls="editor-area" data-language="html">HTML</button>
+        <button class="editor-tab" id="css-tab" type="button" role="tab"
+                aria-selected="false" aria-controls="editor-area" data-language="css">CSS</button>
+        <button class="editor-tab" id="js-tab" type="button" role="tab"
+                aria-selected="false" aria-controls="editor-area" data-language="js">JS</button>
+      </div>
+      <div class="editor-area" id="editor-area" role="tabpanel" aria-labelledby="html-tab"
+           aria-label="Code writing area"></div>
     </section>
 
     <div class="splitter" role="separator" aria-label="Resize panels"
