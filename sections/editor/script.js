@@ -10,6 +10,7 @@
     js: "const button = document.querySelector('button');\n\nbutton.addEventListener('click', () => {\n  alert('Hello!');\n});"
   };
   const editors = {};
+  let isResetting = false;
 
   hosts.forEach((host) => {
     const language = host.dataset.language;
@@ -27,7 +28,9 @@
       autoCloseBrackets: true,
       extraKeys: { 'Ctrl-Space': 'autocomplete' }
     });
-    editors[language].on('change', sendCode);
+    editors[language].on('change', () => {
+      if (!isResetting) sendCode();
+    });
   });
 
   function getCode() {
@@ -45,6 +48,19 @@
     }, window.location.origin);
   }
 
+  function resetEditors() {
+    isResetting = true;
+    Object.keys(editors).forEach((language) => {
+      editors[language].setValue(samples[language]);
+      editors[language].clearHistory();
+    });
+    isResetting = false;
+    sendCode();
+    const activeTab = tabs.find((tab) => tab.classList.contains('is-active'));
+    const activeEditor = activeTab && editors[activeTab.dataset.language];
+    if (activeEditor) activeEditor.focus();
+  }
+
   function activateTab(tab) {
     tabs.forEach((item) => {
       const active = item === tab;
@@ -52,12 +68,10 @@
       item.setAttribute('aria-selected', String(active));
       item.tabIndex = active ? 0 : -1;
     });
-
     hosts.forEach((host) => {
       host.hidden = host.dataset.language !== tab.dataset.language;
       host.classList.toggle('is-visible', !host.hidden);
     });
-
     const activeEditor = editors[tab.dataset.language];
     if (activeEditor) {
       activeEditor.refresh();
@@ -76,10 +90,7 @@
   window.getCodeSelectionRange = (language) => {
     const editor = editors[language];
     if (!editor) return null;
-    return {
-      from: editor.getCursor('from'),
-      to: editor.getCursor('to')
-    };
+    return { from: editor.getCursor('from'), to: editor.getCursor('to') };
   };
   window.replaceSelectedCode = (language, replacement) => {
     const editor = editors[language];
@@ -90,8 +101,9 @@
   };
 
   window.addEventListener('message', (event) => {
-    if (event.source !== window.parent || event.data?.type !== 'LIVE_PREVIEW_READY') return;
-    sendCode();
+    if (event.source !== window.parent) return;
+    if (event.data?.type === 'LIVE_PREVIEW_READY') sendCode();
+    if (event.data?.type === 'RESET_EDITOR') resetEditors();
   });
 
   sendCode();
