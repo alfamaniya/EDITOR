@@ -8,12 +8,14 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="site-header" aria-label="Header"></header>
+  <header class="site-header" aria-label="Main Header"></header>
 
   <main class="workspace" aria-label="Code workspace">
     <section class="panel code-panel" aria-labelledby="code-title">
-      <header class="panel-header">
+      <header class="panel-header editor-header" aria-label="Editor Header">
+        <button class="history-button" type="button" aria-label="Undo">Undo</button>
         <h1 id="code-title">Code Editor</h1>
+        <button class="history-button" type="button" aria-label="Redo">Redo</button>
       </header>
       <div class="editor-tabs" role="tablist" aria-label="Code languages">
         <button class="editor-tab is-active" id="html-tab" type="button" role="tab"
@@ -32,7 +34,7 @@
          aria-valuenow="50" tabindex="0"></div>
 
     <section class="panel preview-panel" aria-labelledby="preview-title">
-      <header class="panel-header">
+      <header class="panel-header live-header" aria-label="Live Header">
         <h2 id="preview-title">Live Preview</h2>
       </header>
       <div class="preview-area" aria-label="Live code display area"></div>
