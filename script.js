@@ -13,10 +13,14 @@
     liveFrame.contentWindow.postMessage({
       type: 'EDITOR_CODE_UPDATE',
       code: latestCode
-    }, window.location.origin);
+    }, '*');
   };
 
   window.addEventListener('message', (event) => {
+    if (event.source === liveFrame?.contentWindow && event.data?.type === 'LIVE_PREVIEW_READY') {
+      sendCodeToPreview();
+      return;
+    }
     if (event.source !== editorFrame?.contentWindow) return;
     if (event.data?.type !== 'EDITOR_CODE_UPDATE') return;
     latestCode = event.data.code;
