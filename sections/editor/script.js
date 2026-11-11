@@ -4,12 +4,17 @@
   if (!tabs.length || !hosts.length || !window.CodeMirror) return;
 
   const modes = { html: 'htmlmixed', css: 'css', js: 'javascript' };
+  const samples = {
+    html: '<h1>Hello World</h1>\n<p>This is a sample page.</p>\n<button>Click me</button>',
+    css: 'body {\n  font-family: Arial, sans-serif;\n  padding: 20px;\n}\n\nh1 {\n  color: royalblue;\n}',
+    js: "const button = document.querySelector('button');\n\nbutton.addEventListener('click', () => {\n  alert('Hello!');\n});"
+  };
   const editors = {};
 
   hosts.forEach((host) => {
     const language = host.dataset.language;
     editors[language] = CodeMirror(host, {
-      value: '',
+      value: samples[language],
       mode: modes[language],
       theme: 'material-darker',
       lineNumbers: true,
