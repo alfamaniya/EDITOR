@@ -90,19 +90,21 @@ body {
 }
 
 .editor-tabs {
+  width: 100%;
   min-height: 42px;
   display: flex;
   align-items: stretch;
-  gap: 4px;
-  padding: 0 10px;
+  gap: 0;
+  padding: 0;
   border-bottom: 1px solid var(--border);
   background: #0e1626;
 }
 
 .editor-tab {
   position: relative;
-  min-width: 58px;
-  padding: 0 14px;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0 8px;
   border: 0;
   border-bottom: 2px solid transparent;
   background: transparent;
