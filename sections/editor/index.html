@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Code Editor</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -22,11 +24,16 @@
       <button class="editor-tab" id="js-tab" type="button" role="tab" aria-selected="false" aria-controls="js-editor" data-language="js">JS</button>
     </div>
     <div class="editor-area" id="editor-area">
-      <textarea class="code-input is-visible" id="html-editor" data-language="html" aria-label="HTML code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
-      <textarea class="code-input" id="css-editor" data-language="css" aria-label="CSS code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" hidden></textarea>
-      <textarea class="code-input" id="js-editor" data-language="js" aria-label="JavaScript code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" hidden></textarea>
+      <div class="code-editor is-visible" id="html-editor" data-language="html" aria-label="HTML code"></div>
+      <div class="code-editor" id="css-editor" data-language="css" aria-label="CSS code" hidden></div>
+      <div class="code-editor" id="js-editor" data-language="js" aria-label="JavaScript code" hidden></div>
     </div>
   </section>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
