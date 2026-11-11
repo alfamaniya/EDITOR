@@ -10,12 +10,38 @@
     js: "const button = document.querySelector('button');\n\nbutton.addEventListener('click', () => {\n  alert('Hello!');\n});"
   };
   const editors = {};
+  const STORAGE_KEY = 'editor-project-code-v1';
   let isResetting = false;
+
+  function loadSavedCode() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      if (!saved || typeof saved !== 'object') return {};
+      return Object.fromEntries(
+        Object.keys(samples).filter((language) => typeof saved[language] === 'string')
+          .map((language) => [language, saved[language]])
+      );
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function saveCode() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(getCode()));
+    } catch (error) {
+      // Editing remains available if browser storage is unavailable.
+    }
+  }
+
+  const savedCode = loadSavedCode();
 
   hosts.forEach((host) => {
     const language = host.dataset.language;
     editors[language] = CodeMirror(host, {
-      value: samples[language],
+      value: Object.prototype.hasOwnProperty.call(savedCode, language)
+        ? savedCode[language]
+        : samples[language],
       mode: modes[language],
       theme: 'material-darker',
       lineNumbers: true,
@@ -29,7 +55,10 @@
       extraKeys: { 'Ctrl-Space': 'autocomplete' }
     });
     editors[language].on('change', () => {
-      if (!isResetting) sendCode();
+      if (!isResetting) {
+        saveCode();
+        sendCode();
+      }
     });
   });
 
@@ -55,6 +84,11 @@
       editors[language].clearHistory();
     });
     isResetting = false;
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      // Reset still completes if browser storage is unavailable.
+    }
     sendCode();
     const activeTab = tabs.find((tab) => tab.classList.contains('is-active'));
     const activeEditor = activeTab && editors[activeTab.dataset.language];
