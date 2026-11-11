@@ -1,9 +1,29 @@
 (() => {
   const workspace = document.querySelector('.workspace');
   const splitter = document.querySelector('.splitter');
+  const editorFrame = document.querySelector('iframe[src="sections/editor/index.html"]');
+  const liveFrame = document.querySelector('iframe[src="sections/live/index.html"]');
   if (!workspace || !splitter) return;
 
   let dragging = false;
+  let latestCode = null;
+
+  const sendCodeToPreview = () => {
+    if (!latestCode || !liveFrame?.contentWindow) return;
+    liveFrame.contentWindow.postMessage({
+      type: 'EDITOR_CODE_UPDATE',
+      code: latestCode
+    }, window.location.origin);
+  };
+
+  window.addEventListener('message', (event) => {
+    if (event.source !== editorFrame?.contentWindow) return;
+    if (event.data?.type !== 'EDITOR_CODE_UPDATE') return;
+    latestCode = event.data.code;
+    sendCodeToPreview();
+  });
+
+  liveFrame?.addEventListener('load', sendCodeToPreview);
 
   const resize = (clientX) => {
     const bounds = workspace.getBoundingClientRect();
