@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Editor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <section class="panel code-panel" aria-labelledby="code-title">
+    <header class="panel-header editor-header" aria-label="Editor Header">
+      <div class="editor-header-left">
+        <button class="history-button" type="button" aria-label="Undo">Undo</button>
+        <button class="history-button" type="button" aria-label="Clear">Clear</button>
+      </div>
+      <h1 id="code-title">Code Editor</h1>
+      <button class="history-button redo-button" type="button" aria-label="Redo">Redo</button>
+    </header>
+    <div class="editor-tabs" role="tablist" aria-label="Code languages">
+      <button class="editor-tab is-active" id="html-tab" type="button" role="tab" aria-selected="true" aria-controls="editor-area" data-language="html">HTML</button>
+      <button class="editor-tab" id="css-tab" type="button" role="tab" aria-selected="false" aria-controls="editor-area" data-language="css">CSS</button>
+      <button class="editor-tab" id="js-tab" type="button" role="tab" aria-selected="false" aria-controls="editor-area" data-language="js">JS</button>
+    </div>
+    <div class="editor-area" id="editor-area" role="tabpanel" aria-labelledby="html-tab" aria-label="Code writing area"></div>
+  </section>
+  <script src="script.js"></script>
+</body>
+</html>
