@@ -3,6 +3,7 @@
   const splitter = document.querySelector('.splitter');
   const editorFrame = document.querySelector('iframe[src="sections/editor/index.html"]');
   const liveFrame = document.querySelector('iframe[src="sections/live/index.html"]');
+  const resetFrame = document.querySelector('iframe[src="sections/reset/index.html"]');
   if (!workspace || !splitter) return;
 
   let dragging = false;
@@ -17,6 +18,10 @@
   };
 
   window.addEventListener('message', (event) => {
+    if (event.source === resetFrame?.contentWindow && event.data?.type === 'RESET_EDITOR_REQUEST') {
+      editorFrame?.contentWindow?.postMessage({ type: 'RESET_EDITOR' }, '*');
+      return;
+    }
     if (event.source === liveFrame?.contentWindow && event.data?.type === 'LIVE_PREVIEW_READY') {
       sendCodeToPreview();
       return;
@@ -43,16 +48,13 @@
     document.body.classList.add('is-resizing');
     resize(event.clientX);
   });
-
   splitter.addEventListener('pointermove', (event) => {
     if (dragging) resize(event.clientX);
   });
-
   const stopDragging = () => {
     dragging = false;
     document.body.classList.remove('is-resizing');
   };
-
   splitter.addEventListener('pointerup', stopDragging);
   splitter.addEventListener('pointercancel', stopDragging);
   splitter.addEventListener('lostpointercapture', stopDragging);
