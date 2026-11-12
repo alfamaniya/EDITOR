@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const file = path.resolve(__dirname, '..', 'dist', 'project.html.txt');
+const file = path.resolve(__dirname, '..', 'dist', 'project.txt');
 if (!fs.existsSync(file)) throw new Error('Export file does not exist.');
 const html = fs.readFileSync(file, 'utf8');
 const checks = [
