@@ -2,7 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
-const output = path.join(root, 'dist', 'project.html.txt');
+const output = path.join(root, 'dist', 'project.txt');
 
 function read(relativePath) {
   return fs.readFileSync(path.join(root, relativePath), 'utf8');
