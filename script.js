@@ -4,6 +4,8 @@
   const editorFrame = document.querySelector('iframe[src="sections/editor/index.html"]');
   const liveFrame = document.querySelector('iframe[src="sections/live/index.html"]');
   const resetFrame = document.querySelector('iframe[src="sections/reset/index.html"]');
+  const downloadFrame = document.querySelector('.download-frame');
+  const downloadButton = document.querySelector('[aria-label="Download"]');
   if (!workspace || !splitter) return;
 
   let dragging = false;
@@ -12,18 +14,28 @@
   const requestCodeFromEditor = () => {
     editorFrame?.contentWindow?.postMessage({ type: 'REQUEST_EDITOR_CODE' }, '*');
   };
-
   const sendCodeToPreview = () => {
     if (!latestCode || !liveFrame?.contentWindow) return;
-    liveFrame.contentWindow.postMessage({
-      type: 'EDITOR_CODE_UPDATE',
-      code: latestCode
-    }, '*');
+    liveFrame.contentWindow.postMessage({ type: 'EDITOR_CODE_UPDATE', code: latestCode }, '*');
   };
+  const sendCodeToDownload = () => {
+    if (!latestCode || !downloadFrame?.contentWindow) return;
+    downloadFrame.contentWindow.postMessage({ type: 'DOWNLOAD_CODE_UPDATE', code: latestCode }, '*');
+  };
+
+  downloadButton?.addEventListener('click', () => {
+    downloadFrame?.contentWindow?.postMessage({ type: 'OPEN_DOWNLOAD_DIALOG' }, '*');
+    requestCodeFromEditor();
+  });
 
   window.addEventListener('message', (event) => {
     if (event.source === resetFrame?.contentWindow && event.data?.type === 'RESET_EDITOR_REQUEST') {
       editorFrame?.contentWindow?.postMessage({ type: 'RESET_EDITOR' }, '*');
+      return;
+    }
+    if (event.source === downloadFrame?.contentWindow && event.data?.type === 'DOWNLOAD_CODE_REQUEST') {
+      requestCodeFromEditor();
+      sendCodeToDownload();
       return;
     }
     if (event.source === liveFrame?.contentWindow && event.data?.type === 'LIVE_PREVIEW_READY') {
@@ -35,6 +47,7 @@
     if (event.data?.type !== 'EDITOR_CODE_UPDATE') return;
     latestCode = event.data.code;
     sendCodeToPreview();
+    sendCodeToDownload();
   });
 
   editorFrame?.addEventListener('load', requestCodeFromEditor);
@@ -42,6 +55,7 @@
     requestCodeFromEditor();
     sendCodeToPreview();
   });
+  downloadFrame?.addEventListener('load', sendCodeToDownload);
 
   const resize = (clientX) => {
     const bounds = workspace.getBoundingClientRect();
