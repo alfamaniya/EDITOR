@@ -39,6 +39,6 @@ jobs:
       - name: Send project by Gmail
         run: node project-export/send-email.js
         env:
-          GMAIL_ADDRESS: \${{ secrets.GMAIL_ADDRESS }}
-          GMAIL_APP_PASSWORD: \${{ secrets.GMAIL_APP_PASSWORD }}
-          COMPANY_EMAIL: \${{ secrets.COMPANY_EMAIL }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          COMPANY_EMAIL: ${{ secrets.COMPANY_EMAIL }}
