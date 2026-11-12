@@ -1,0 +1,42 @@
+name: Send Project by Email
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_send:
+        description: Confirm sending the latest generated project.txt by email
+        required: true
+        type: choice
+        options:
+          - "yes"
+          - "no"
+
+permissions:
+  contents: read
+
+jobs:
+  send-email:
+    if: inputs.confirm_send == 'yes'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out latest repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Verify generated project file
+        run: |
+          test -s dist/project.txt || {
+            echo "dist/project.txt is missing. Wait for the automatic build action to finish."
+            exit 1
+          }
+
+      - name: Install email dependency
+        run: npm install --no-save --no-package-lock nodemailer
+
+      - name: Send project by Gmail
+        run: node project-export/send-email.js
+        env:
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          COMPANY_EMAIL: ${{ secrets.COMPANY_EMAIL }}
