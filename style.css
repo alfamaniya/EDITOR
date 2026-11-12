@@ -1,4 +1,4 @@
-
+ 
 :root {
   color-scheme: dark;
   --background: #0b1020;
@@ -33,6 +33,11 @@ body { overflow: hidden; background: var(--background); color: var(--text); }
 .header-reset-frame {
   display: block; flex: 0 0 72px; width: 72px; height: 32px;
   border: 0; background: transparent;
+}
+.download-frame {
+  position: fixed; inset: 0; z-index: 30; display: block;
+  width: 100%; height: 100%; border: 0; background: transparent;
+  pointer-events: none;
 }
 .workspace {
   width: 100%; height: calc(100vh - (2 * var(--fixed-bar-height)));
