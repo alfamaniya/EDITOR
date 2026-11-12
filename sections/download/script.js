@@ -85,8 +85,9 @@
   chooseLocationButton.addEventListener('click', async () => {
     clearError();
     try {
-      if (!window.showDirectoryPicker) throw new Error('Folder selection is not supported in this browser. The browser download window will be used instead.');
-      directoryHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+      const pickerWindow = window.parent;
+      if (!pickerWindow.showDirectoryPicker) throw new Error('Folder selection is not supported in this browser. You can still download using the browser save option.');
+      directoryHandle = await pickerWindow.showDirectoryPicker({ mode: 'readwrite' });
       locationStatus.textContent = 'Folder selected';
     } catch (error) {
       if (error.name !== 'AbortError') showError(error.message);
@@ -101,11 +102,12 @@
     }
   };
   const saveWithBrowser = async (files) => {
-    if (files.length === 1 && window.showSaveFilePicker) {
+    const pickerWindow = window.parent;
+    if (files.length === 1 && pickerWindow.showSaveFilePicker) {
       const file = files[0];
       const extension = file.name.split('.').pop();
       const mime = extension === 'html' ? 'text/html' : extension === 'css' ? 'text/css' : 'text/javascript';
-      const handle = await window.showSaveFilePicker({ suggestedName: file.name, types: [{ description: 'Project file', accept: { [mime]: ['.' + extension] } }] });
+      const handle = await pickerWindow.showSaveFilePicker({ suggestedName: file.name, types: [{ description: 'Project file', accept: { [mime]: ['.' + extension] } }] });
       const writable = await handle.createWritable();
       await writable.write(file.content);
       await writable.close();
