@@ -81,6 +81,13 @@
 
 ```text
 EDITOR/
+├── project-export/
+│   ├── build.js
+│   ├── validate.js
+│   └── send-email.js
+├── .github/
+│   └── workflows/
+│       └── project-export-email.yml
 ├── sections/
 │   ├── editor/
 │   │   ├── index.html
