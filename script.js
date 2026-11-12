@@ -11,19 +11,16 @@
   let dragging = false;
   let latestCode = null;
 
-  const requestCodeFromEditor = () => {
-    editorFrame?.contentWindow?.postMessage({ type: 'REQUEST_EDITOR_CODE' }, '*');
-  };
+  const requestCodeFromEditor = () => editorFrame?.contentWindow?.postMessage({ type: 'REQUEST_EDITOR_CODE' }, '*');
   const sendCodeToPreview = () => {
-    if (!latestCode || !liveFrame?.contentWindow) return;
-    liveFrame.contentWindow.postMessage({ type: 'EDITOR_CODE_UPDATE', code: latestCode }, '*');
+    if (latestCode && liveFrame?.contentWindow) liveFrame.contentWindow.postMessage({ type: 'EDITOR_CODE_UPDATE', code: latestCode }, '*');
   };
   const sendCodeToDownload = () => {
-    if (!latestCode || !downloadFrame?.contentWindow) return;
-    downloadFrame.contentWindow.postMessage({ type: 'DOWNLOAD_CODE_UPDATE', code: latestCode }, '*');
+    if (latestCode && downloadFrame?.contentWindow) downloadFrame.contentWindow.postMessage({ type: 'DOWNLOAD_CODE_UPDATE', code: latestCode }, '*');
   };
 
   downloadButton?.addEventListener('click', () => {
+    downloadFrame?.classList.add('is-open');
     downloadFrame?.contentWindow?.postMessage({ type: 'OPEN_DOWNLOAD_DIALOG' }, '*');
     requestCodeFromEditor();
   });
@@ -31,6 +28,10 @@
   window.addEventListener('message', (event) => {
     if (event.source === resetFrame?.contentWindow && event.data?.type === 'RESET_EDITOR_REQUEST') {
       editorFrame?.contentWindow?.postMessage({ type: 'RESET_EDITOR' }, '*');
+      return;
+    }
+    if (event.source === downloadFrame?.contentWindow && event.data?.type === 'DOWNLOAD_DIALOG_CLOSED') {
+      downloadFrame.classList.remove('is-open');
       return;
     }
     if (event.source === downloadFrame?.contentWindow && event.data?.type === 'DOWNLOAD_CODE_REQUEST') {
@@ -43,18 +44,14 @@
       sendCodeToPreview();
       return;
     }
-    if (event.source !== editorFrame?.contentWindow) return;
-    if (event.data?.type !== 'EDITOR_CODE_UPDATE') return;
+    if (event.source !== editorFrame?.contentWindow || event.data?.type !== 'EDITOR_CODE_UPDATE') return;
     latestCode = event.data.code;
     sendCodeToPreview();
     sendCodeToDownload();
   });
 
   editorFrame?.addEventListener('load', requestCodeFromEditor);
-  liveFrame?.addEventListener('load', () => {
-    requestCodeFromEditor();
-    sendCodeToPreview();
-  });
+  liveFrame?.addEventListener('load', () => { requestCodeFromEditor(); sendCodeToPreview(); });
   downloadFrame?.addEventListener('load', sendCodeToDownload);
 
   const resize = (clientX) => {
@@ -64,24 +61,17 @@
     workspace.style.setProperty('--split', value + '%');
     splitter.setAttribute('aria-valuenow', String(Math.round(value)));
   };
-
   splitter.addEventListener('pointerdown', (event) => {
     dragging = true;
     splitter.setPointerCapture(event.pointerId);
     document.body.classList.add('is-resizing');
     resize(event.clientX);
   });
-  splitter.addEventListener('pointermove', (event) => {
-    if (dragging) resize(event.clientX);
-  });
-  const stopDragging = () => {
-    dragging = false;
-    document.body.classList.remove('is-resizing');
-  };
+  splitter.addEventListener('pointermove', (event) => { if (dragging) resize(event.clientX); });
+  const stopDragging = () => { dragging = false; document.body.classList.remove('is-resizing'); };
   splitter.addEventListener('pointerup', stopDragging);
   splitter.addEventListener('pointercancel', stopDragging);
   splitter.addEventListener('lostpointercapture', stopDragging);
-
   splitter.addEventListener('keydown', (event) => {
     if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
     event.preventDefault();
