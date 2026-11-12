@@ -91,7 +91,7 @@
   };
   window.addEventListener('message', (event) => {
     if (event.source !== window.parent) return;
-    if (event.data?.type === 'LIVE_PREVIEW_READY') sendCode();
+    if (event.data?.type === 'LIVE_PREVIEW_READY' || event.data?.type === 'REQUEST_EDITOR_CODE') sendCode();
     if (event.data?.type === 'RESET_EDITOR') resetEditors();
   });
   sendCode();
