@@ -3,7 +3,7 @@ const path = require('node:path');
 const nodemailer = require('nodemailer');
 
 async function main() {
-  const file = path.resolve(__dirname, '..', 'dist', 'project.html.jpg');
+  const file = path.resolve(__dirname, '..', 'dist', 'project.html.txt');
   const sender = process.env.GMAIL_ADDRESS;
   const password = process.env.GMAIL_APP_PASSWORD;
   const recipient = process.env.COMPANY_EMAIL;
@@ -21,14 +21,14 @@ async function main() {
     from: sender,
     to: recipient,
     subject: 'EDITOR project export',
-    text: 'The complete EDITOR project is attached as project.html.jpg.\n\nComplete HTML source:\n\n' + html,
+    text: 'The complete EDITOR project is attached as project.html.txt. To use it as a web page, rename the downloaded file extension from .txt to .html.\n\nComplete HTML source:\n\n' + html,
     attachments: [{
-      filename: 'project.html.jpg',
+      filename: 'project.html.txt',
       content: html,
-      contentType: 'image/jpeg'
+      contentType: 'text/plain; charset=utf-8'
     }]
   });
-  console.log('Email sent to ' + recipient + ' with project.html.jpg attached and included in the message body.');
+  console.log('Email sent to ' + recipient + ' with project.html.txt attached and the complete HTML source included in the message body.');
 }
 
 main().catch((error) => {
