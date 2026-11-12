@@ -8,20 +8,29 @@
     const html = typeof code.html === 'string' ? code.html : '';
     const css = typeof code.css === 'string' ? code.css : '';
     const js = typeof code.js === 'string' ? code.js : '';
+    const hasDoctype = /^\\s*<!doctype\\s+html\\s*>/i.test(html);
+    const hasHtml = /<html\\b[^>]*>/i.test(html);
+    const hasHead = /<head\\b[^>]*>/i.test(html);
+    const hasBody = /<body\\b[^>]*>/i.test(html);
 
-    previewFrame.srcdoc = `<!doctype html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>${css}</style>
-</head>
-<body>
-${html}
-<script>${js}
-<\/script>
-</body>
-</html>`;
+    if (!hasDoctype || !hasHtml || !hasHead || !hasBody) {
+      previewFrame.srcdoc = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Invalid HTML Document</title></head><body><p style="font-family:Arial,sans-serif;padding:20px;color:#b91c1c">The HTML editor must contain <!DOCTYPE html>, <html>, <head>, and <body> tags.</p></body></html>';
+      return;
+    }
+
+    const parsed = new DOMParser().parseFromString(html, 'text/html');
+    if (css.trim()) {
+      const style = parsed.createElement('style');
+      style.textContent = css;
+      parsed.head.appendChild(style);
+    }
+    if (js.trim()) {
+      const script = parsed.createElement('script');
+      script.textContent = js;
+      parsed.body.appendChild(script);
+    }
+
+    previewFrame.srcdoc = '<!DOCTYPE html>\\n' + parsed.documentElement.outerHTML;
   };
 
   window.addEventListener('message', (event) => {
