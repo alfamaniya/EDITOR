@@ -25,7 +25,11 @@
     window.parent.postMessage({ type: 'DOWNLOAD_CODE_REQUEST' }, '*');
     closeButton.focus();
   };
-  const closeDialog = () => { overlay.hidden = true; directoryHandle = null; };
+  const closeDialog = () => {
+    overlay.hidden = true;
+    directoryHandle = null;
+    window.parent.postMessage({ type: 'DOWNLOAD_DIALOG_CLOSED' }, '*');
+  };
   const updateMethod = () => {
     const individual = method() === 'individual';
     fileOptions.hidden = !individual;
@@ -44,18 +48,18 @@
     if (!/^\s*<!doctype\s+html\s*>/i.test(html) || !/<html\b/i.test(html) || !/<head\b/i.test(html) || !/<body\b/i.test(html)) {
       throw new Error('The HTML editor must contain <!DOCTYPE html>, <html>, <head> and <body> tags.');
     }
-    const document = new DOMParser().parseFromString(html, 'text/html');
+    const parsed = new DOMParser().parseFromString(html, 'text/html');
     if (code.css?.trim()) {
-      const style = document.createElement('style');
+      const style = parsed.createElement('style');
       style.textContent = code.css;
-      document.head.appendChild(style);
+      parsed.head.appendChild(style);
     }
     if (code.js?.trim()) {
-      const script = document.createElement('script');
+      const script = parsed.createElement('script');
       script.textContent = code.js;
-      document.body.appendChild(script);
+      parsed.body.appendChild(script);
     }
-    return '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+    return '<!DOCTYPE html>\n' + parsed.documentElement.outerHTML;
   };
   const normalizeFilename = (value, extension) => {
     let name = value.trim().replace(/[\\/:*?"<>|]/g, '-');
@@ -99,14 +103,18 @@
   const saveWithBrowser = async (files) => {
     if (files.length === 1 && window.showSaveFilePicker) {
       const file = files[0];
-      const handle = await window.showSaveFilePicker({ suggestedName: file.name, types: [{ description: 'Project file', accept: { [file.name.endsWith('.html') ? 'text/html' : file.name.endsWith('.css') ? 'text/css' : 'text/javascript']: ['.' + file.name.split('.').pop()] } }] });
+      const extension = file.name.split('.').pop();
+      const mime = extension === 'html' ? 'text/html' : extension === 'css' ? 'text/css' : 'text/javascript';
+      const handle = await window.showSaveFilePicker({ suggestedName: file.name, types: [{ description: 'Project file', accept: { [mime]: ['.' + extension] } }] });
       const writable = await handle.createWritable();
       await writable.write(file.content);
       await writable.close();
       return;
     }
     files.forEach((file) => {
-      const blob = new Blob([file.content], { type: file.name.endsWith('.html') ? 'text/html' : file.name.endsWith('.css') ? 'text/css' : 'text/javascript' });
+      const extension = file.name.split('.').pop();
+      const mime = extension === 'html' ? 'text/html' : extension === 'css' ? 'text/css' : 'text/javascript';
+      const blob = new Blob([file.content], { type: mime });
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement('a');
       anchor.href = url;
