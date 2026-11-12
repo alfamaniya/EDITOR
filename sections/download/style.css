@@ -1,0 +1,38 @@
+:root{color-scheme:dark;font-family:Arial,sans-serif;color:#e5eaf3}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0}
+body{background:transparent;pointer-events:none}
+.download-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,7,18,.72);pointer-events:auto}
+.download-overlay[hidden],[hidden]{display:none!important}
+.download-dialog{width:min(100%,460px);max-height:calc(100vh - 36px);overflow:auto;padding:22px;background:#151e30;border:1px solid #344158;border-radius:13px;box-shadow:0 22px 70px rgba(0,0,0,.45)}
+.dialog-header,.dialog-actions,.location-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.dialog-header h2{margin:0;font-size:18px;font-weight:600}
+.icon-button{width:30px;height:30px;border:0;border-radius:6px;background:transparent;color:#aeb9cb;font-size:24px;cursor:pointer}
+.icon-button:hover{background:#26344b;color:#fff}
+.dialog-description{margin:10px 0 18px;color:#aeb9cb;font-size:13px;line-height:1.5}
+.method-list{display:grid;gap:10px}
+.method-option{display:flex;align-items:flex-start;gap:12px;padding:14px;border:1px solid #344158;border-radius:9px;background:#101a2c;cursor:pointer}
+.method-option:has(input:checked){border-color:#8275f5;background:#1c2540}
+.method-option input,.file-choice input{accent-color:#8275f5}
+.method-copy{display:grid;gap:6px}
+.method-copy strong{font-size:13px}
+.method-copy small,.location-row small{color:#9eabc0;font-size:12px;line-height:1.45}
+.file-options{display:flex;gap:16px;flex-wrap:wrap;padding:13px 2px 2px}
+.file-choice{display:flex;align-items:center;gap:6px;color:#dce3ef;font-size:12px}
+.name-fields{display:grid;gap:7px;margin-top:17px}
+.field-label{color:#c6cfdd;font-size:12px}
+.text-field{width:100%;height:36px;padding:0 10px;border:1px solid #344158;border-radius:6px;background:#0d1627;color:#e5eaf3;font:inherit;font-size:13px;outline:none}
+.text-field:focus{border-color:#8275f5}
+.individual-names{display:grid;gap:7px}
+.location-row{margin-top:17px;padding:12px;border:1px solid #344158;border-radius:8px}
+.location-row>div{display:grid;gap:5px}
+.location-row strong{font-size:12px}
+.secondary-button,.primary-button{min-height:34px;padding:0 13px;border-radius:6px;font:inherit;font-size:12px;cursor:pointer}
+.secondary-button{border:1px solid #3a4961;background:#1b2940;color:#e5eaf3}
+.secondary-button:hover{border-color:#8275f5}
+.primary-button{border:1px solid #8275f5;background:#7064e8;color:#fff}
+.primary-button:hover{background:#8175f5}
+.dialog-actions{justify-content:flex-end;margin-top:19px}
+.error-message{margin:12px 0 0;color:#ff9a9a;font-size:12px;line-height:1.5}
+button:focus-visible,input:focus-visible{outline:2px solid #a69eff;outline-offset:2px}
+@media(max-width:420px){.download-dialog{padding:17px}.location-row{align-items:flex-start;flex-direction:column}.location-row .secondary-button{width:100%}}
