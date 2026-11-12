@@ -9,6 +9,10 @@
   let dragging = false;
   let latestCode = null;
 
+  const requestCodeFromEditor = () => {
+    editorFrame?.contentWindow?.postMessage({ type: 'REQUEST_EDITOR_CODE' }, '*');
+  };
+
   const sendCodeToPreview = () => {
     if (!latestCode || !liveFrame?.contentWindow) return;
     liveFrame.contentWindow.postMessage({
@@ -23,6 +27,7 @@
       return;
     }
     if (event.source === liveFrame?.contentWindow && event.data?.type === 'LIVE_PREVIEW_READY') {
+      requestCodeFromEditor();
       sendCodeToPreview();
       return;
     }
@@ -32,7 +37,11 @@
     sendCodeToPreview();
   });
 
-  liveFrame?.addEventListener('load', sendCodeToPreview);
+  editorFrame?.addEventListener('load', requestCodeFromEditor);
+  liveFrame?.addEventListener('load', () => {
+    requestCodeFromEditor();
+    sendCodeToPreview();
+  });
 
   const resize = (clientX) => {
     const bounds = workspace.getBoundingClientRect();
