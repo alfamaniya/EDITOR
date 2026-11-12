@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Download</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="download-overlay" hidden>
+    <section class="download-dialog" role="dialog" aria-modal="true" aria-labelledby="download-title">
+      <header class="dialog-header">
+        <h2 id="download-title">Download</h2>
+        <button class="icon-button close-button" type="button" aria-label="Close">×</button>
+      </header>
+      <p class="dialog-description">Choose how you want to download your project.</p>
+      <div class="method-list">
+        <label class="method-option">
+          <input type="radio" name="download-method" value="single" checked>
+          <span class="method-copy"><strong>Single HTML file</strong><small>Combine HTML, CSS and JavaScript into one standalone HTML file.</small></span>
+        </label>
+        <label class="method-option">
+          <input type="radio" name="download-method" value="individual">
+          <span class="method-copy"><strong>Individual files</strong><small>Download selected files separately.</small></span>
+        </label>
+      </div>
+      <div class="file-options" hidden>
+        <label class="file-choice"><input type="checkbox" value="html" checked> HTML</label>
+        <label class="file-choice"><input type="checkbox" value="css" checked> CSS</label>
+        <label class="file-choice"><input type="checkbox" value="js" checked> JS</label>
+      </div>
+      <div class="name-fields">
+        <label class="field-label" for="single-filename">File name</label>
+        <input class="text-field" id="single-filename" value="index.html" autocomplete="off">
+        <div class="individual-names" hidden>
+          <label class="field-label" for="html-filename">HTML file name</label>
+          <input class="text-field" id="html-filename" value="index.html" autocomplete="off">
+          <label class="field-label" for="css-filename">CSS file name</label>
+          <input class="text-field" id="css-filename" value="style.css" autocomplete="off">
+          <label class="field-label" for="js-filename">JavaScript file name</label>
+          <input class="text-field" id="js-filename" value="script.js" autocomplete="off">
+        </div>
+      </div>
+      <div class="location-row">
+        <div><strong>Save location</strong><small class="location-status">Not selected</small></div>
+        <button class="secondary-button choose-location" type="button">Choose location</button>
+      </div>
+      <p class="error-message" role="alert" hidden></p>
+      <footer class="dialog-actions">
+        <button class="secondary-button cancel-button" type="button">Cancel</button>
+        <button class="primary-button download-button" type="button">Download</button>
+      </footer>
+    </section>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
