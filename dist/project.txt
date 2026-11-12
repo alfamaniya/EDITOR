@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1020">
+  <title>Editor</title>
+  <style>
+ 
+:root {
+  color-scheme: dark;
+  --background: #0b1020;
+  --border: #273247;
+  --text: #e5eaf3;
+  --accent: #8275f5;
+  --split: 50%;
+  --fixed-bar-height: 54px;
+  font-family: Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { width: 100%; height: 100%; min-width: 320px; margin: 0; }
+body { overflow: hidden; background: var(--background); color: var(--text); }
+.site-header, .site-footer {
+  position: fixed; left: 0; right: 0; height: var(--fixed-bar-height);
+  background: #151e30; border-color: var(--border); z-index: 10;
+}
+.site-header {
+  top: 0; display: flex; align-items: center; padding: 0 16px;
+  border-bottom: 1px solid var(--border);
+}
+.site-footer { bottom: 0; border-top: 1px solid var(--border); }
+.main-header-actions { display: flex; align-items: center; gap: 8px; }
+.main-header-button {
+  min-width: 72px; height: 30px; padding: 0 10px;
+  border: 1px solid var(--border); border-radius: 5px;
+  background: #1b2940; color: var(--text); font: inherit;
+  font-size: 12px; cursor: pointer;
+}
+.main-header-button:hover { border-color: var(--accent); background: #222f49; }
+.main-header-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.header-reset-frame {
+  display: block; flex: 0 0 72px; width: 72px; height: 32px;
+  border: 0; background: transparent;
+}
+.download-frame {
+  position: fixed; inset: 0; z-index: 30; display: block;
+  width: 100%; height: 100%; border: 0; background: transparent;
+  pointer-events: none;
+}
+.download-frame.is-open { pointer-events: auto; }
+.workspace {
+  width: 100%; height: calc(100vh - (2 * var(--fixed-bar-height)));
+  display: grid; grid-template-columns: minmax(0, var(--split)) 12px minmax(0, 1fr);
+  padding: 12px; margin-top: var(--fixed-bar-height); align-items: stretch;
+}
+.component-frame {
+  display: block; width: 100%; height: 100%; min-width: 0; min-height: 0; border: 0;
+}
+.splitter {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  cursor: col-resize; touch-action: none; outline: none;
+}
+.splitter::before {
+  content: ""; position: absolute; width: 1px; height: 100%; background: var(--border);
+}
+.splitter:hover::before, .splitter:focus-visible::before { width: 2px; background: var(--accent); }
+body.is-resizing { cursor: col-resize; user-select: none; }
+
+</style>
+</head>
+<body>
+  <header class="site-header" aria-label="Main Header">
+    <div class="main-header-actions">
+      <button class="main-header-button" type="button" aria-label="Clear All">Clear All</button>
+      <button class="main-header-button" type="button" aria-label="Download">Download</button>
+      <button class="main-header-button" type="button" aria-label="Import">Import</button>
+      <iframe class="header-reset-frame"  title="Reset project" srcdoc="&lt;!doctype html>
+&lt;html lang=&quot;en&quot;>
+&lt;head>
+  &lt;meta charset=&quot;UTF-8&quot;>
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;>
+  &lt;title>Reset&lt;/title>
+  &lt;style>
+:root {
+  color-scheme: dark;
+  font-family: Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+.reset-button {
+  min-width: 72px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid #273247;
+  border-radius: 5px;
+  background: #1b2940;
+  color: #e5eaf3;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.reset-button:hover {
+  border-color: #8275f5;
+  background: #222f49;
+}
+.reset-button:focus-visible {
+  outline: 2px solid #8275f5;
+  outline-offset: 2px;
+}
+
+&lt;/style>
+&lt;/head>
+&lt;body>
+  &lt;button class=&quot;reset-button&quot; type=&quot;button&quot;>Reset&lt;/button>
+  &lt;script>
+(() => {
+  const button = document.querySelector('.reset-button');
+  if (!button) return;
+
+  button.addEventListener('click', () => {
+    window.parent.postMessage({ type: 'RESET_EDITOR_REQUEST' }, '*');
+  });
+})();
+
+&lt;/script>
+&lt;/body>
+&lt;/html>
+"></iframe>
+    </div>
+  </header>
+
+  <main class="workspace" aria-label="Code workspace">
+    <iframe class="component-frame"  title="Code Editor" srcdoc="&lt;!doctype html>
+&lt;html lang=&quot;en&quot;>
+&lt;head>
+  &lt;meta charset=&quot;UTF-8&quot;>
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;>
+  &lt;title>Code Editor&lt;/title>
+  &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css&quot;>
+  &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css&quot;>
+  &lt;style>
+
+:root {
+  color-scheme: dark;
+  --panel: #111827;
+  --border: #273247;
+  --text: #e5eaf3;
+  --muted: #8995a9;
+  --accent: #8275f5;
+  --panel-header-height: 50px;
+  font-family: Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { width: 100%; height: 100%; min-width: 0; margin: 0; }
+body { overflow: hidden; background: var(--panel); color: var(--text); }
+.panel {
+  width: 100%; height: 100%; min-width: 0; min-height: 0;
+  display: flex; flex-direction: column; overflow: hidden;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--panel);
+}
+.panel-header {
+  height: var(--panel-header-height); min-height: var(--panel-header-height);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 0 16px; background: #151e30; border-bottom: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
+}
+.panel-header h1 { margin: 0; color: var(--text); font-size: 13px; font-weight: 600; letter-spacing: .2px; }
+.editor-header { display: grid; grid-template-columns: 1fr auto 1fr; }
+.editor-header h1 { grid-column: 2; grid-row: 1; text-align: center; }
+.editor-header-left { grid-column: 1; grid-row: 1; display: flex; align-items: center; gap: 8px; }
+.redo-button { grid-column: 3; grid-row: 1; justify-self: end; }
+.history-button {
+  min-width: 64px; height: 30px; padding: 0 10px; border: 1px solid var(--border);
+  border-radius: 5px; background: #1b2940; color: var(--text); font: inherit;
+  font-size: 12px; cursor: pointer;
+}
+.history-button:hover { border-color: var(--accent); background: #222f49; }
+.history-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.editor-tabs {
+  width: 100%; min-height: 42px; display: flex; align-items: stretch; gap: 0;
+  padding: 0; border-bottom: 1px solid var(--border); background: #0e1626;
+}
+.editor-tab {
+  position: relative; flex: 1 1 0; min-width: 0; padding: 0 8px; border: 0;
+  border-bottom: 2px solid transparent; background: transparent; color: var(--muted);
+  font: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.editor-tab:hover { color: var(--text); }
+.editor-tab.is-active { color: var(--text); border-bottom-color: var(--accent); }
+.editor-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+.editor-area { position: relative; flex: 1; min-height: 0; background: #0e1626; }
+.code-editor { width: 100%; height: 100%; min-height: 0; }
+.code-editor[hidden] { display: none; }
+.CodeMirror {
+  width: 100%; height: 100%; background: #0e1626; color: #e5eaf3;
+  font-family: Consolas, &quot;Courier New&quot;, monospace; font-size: 14px; line-height: 1.6;
+}
+.CodeMirror-gutters { background: #111b2c; border-right: 1px solid #273247; }
+.CodeMirror-linenumber { color: #68758b; padding: 0 8px 0 5px; }
+.CodeMirror-cursor { border-left: 2px solid #a99fff; }
+.CodeMirror-selected { background: rgb(130 117 245 / 32%) !important; }
+.CodeMirror-focused .CodeMirror-selected { background: rgb(130 117 245 / 42%) !important; }
+.CodeMirror-focused { outline: none; }
+.CodeMirror-scroll { min-height: 100%; }
+
+&lt;/style>
+&lt;/head>
+&lt;body>
+  &lt;section class=&quot;panel code-panel&quot; aria-labelledby=&quot;code-title&quot;>
+    &lt;header class=&quot;panel-header editor-header&quot; aria-label=&quot;Editor Header&quot;>
+      &lt;div class=&quot;editor-header-left&quot;>
+        &lt;button class=&quot;history-button&quot; type=&quot;button&quot; aria-label=&quot;Undo&quot;>Undo&lt;/button>
+        &lt;button class=&quot;history-button&quot; type=&quot;button&quot; aria-label=&quot;Clear&quot;>Clear&lt;/button>
+      &lt;/div>
+      &lt;h1 id=&quot;code-title&quot;>Code Editor&lt;/h1>
+      &lt;button class=&quot;history-button redo-button&quot; type=&quot;button&quot; aria-label=&quot;Redo&quot;>Redo&lt;/button>
+    &lt;/header>
+    &lt;div class=&quot;editor-tabs&quot; role=&quot;tablist&quot; aria-label=&quot;Code languages&quot;>
+      &lt;button class=&quot;editor-tab is-active&quot; id=&quot;html-tab&quot; type=&quot;button&quot; role=&quot;tab&quot; aria-selected=&quot;true&quot; aria-controls=&quot;html-editor&quot; data-language=&quot;html&quot;>HTML&lt;/button>
+      &lt;button class=&quot;editor-tab&quot; id=&quot;css-tab&quot; type=&quot;button&quot; role=&quot;tab&quot; aria-selected=&quot;false&quot; aria-controls=&quot;css-editor&quot; data-language=&quot;css&quot;>CSS&lt;/button>
+      &lt;button class=&quot;editor-tab&quot; id=&quot;js-tab&quot; type=&quot;button&quot; role=&quot;tab&quot; aria-selected=&quot;false&quot; aria-controls=&quot;js-editor&quot; data-language=&quot;js&quot;>JS&lt;/button>
+    &lt;/div>
+    &lt;div class=&quot;editor-area&quot; id=&quot;editor-area&quot;>
+      &lt;div class=&quot;code-editor is-visible&quot; id=&quot;html-editor&quot; data-language=&quot;html&quot; aria-label=&quot;HTML code&quot;>&lt;/div>
+      &lt;div class=&quot;code-editor&quot; id=&quot;css-editor&quot; data-language=&quot;css&quot; aria-label=&quot;CSS code&quot; hidden>&lt;/div>
+      &lt;div class=&quot;code-editor&quot; id=&quot;js-editor&quot; data-language=&quot;js&quot; aria-label=&quot;JavaScript code&quot; hidden>&lt;/div>
+    &lt;/div>
+  &lt;/section>
+  &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js&quot;>&lt;/script>
+  &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js&quot;>&lt;/script>
+  &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js&quot;>&lt;/script>
+  &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js&quot;>&lt;/script>
+  &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js&quot;>&lt;/script>
+  &lt;script>
+(() => {
+  const tabs = Array.from(document.querySelectorAll('.editor-tab'));
+  const hosts = Array.from(document.querySelectorAll('.code-editor'));
+  if (!tabs.length || !hosts.length || !window.CodeMirror) return;
+  const modes = { html: 'htmlmixed', css: 'css', js: 'javascript' };
+  const samples = {
+    html: '&lt;!DOCTYPE html>\n&lt;html lang=&quot;en&quot;>\n&lt;head>\n  &lt;meta charset=&quot;UTF-8&quot;>\n  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;>\n  &lt;title>My Page&lt;/title>\n&lt;/head>\n&lt;body>\n  &lt;h1>Hello World&lt;/h1>\n  &lt;p>This is a sample page.&lt;/p>\n  &lt;button>Click me&lt;/button>\n&lt;/body>\n&lt;/html>',
+    css: 'body {\n  font-family: Arial, sans-serif;\n  padding: 20px;\n}\n\nh1 {\n  color: royalblue;\n}',
+    js: &quot;const button = document.querySelector('button');\n\nbutton.addEventListener('click', () => {\n  alert('Hello!');\n});&quot;
+  };
+  const editors = {};
+  const STORAGE_KEY = 'editor-project-code-v1';
+  let isResetting = false;
+  function loadSavedCode() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      if (!saved || typeof saved !== 'object') return {};
+      const restored = Object.fromEntries(
+        Object.keys(samples).filter((language) => typeof saved[language] === 'string')
+          .map((language) => [language, saved[language]])
+      );
+      if (typeof restored.html === 'string' &amp;&amp; !/&lt;html\b/i.test(restored.html)) {
+        const oldSampleContent = '  &lt;h1>Hello World&lt;/h1>\n  &lt;p>This is a sample page.&lt;/p>\n  &lt;button>Click me&lt;/button>';
+        restored.html = samples.html.replace(oldSampleContent, restored.html);
+      }
+      return restored;
+    } catch (error) {
+      return {};
+    }
+  }
+  function saveCode() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(getCode())); }
+    catch (error) { /* Editing remains available if browser storage is unavailable. */ }
+  }
+  const savedCode = loadSavedCode();
+  hosts.forEach((host) => {
+    const language = host.dataset.language;
+    editors[language] = CodeMirror(host, {
+      value: Object.prototype.hasOwnProperty.call(savedCode, language) ? savedCode[language] : samples[language],
+      mode: modes[language], theme: 'material-darker', lineNumbers: true, lineWrapping: false,
+      indentUnit: 2, tabSize: 2, indentWithTabs: false, autofocus: language === 'html',
+      matchBrackets: true, autoCloseBrackets: true, extraKeys: { 'Ctrl-Space': 'autocomplete' }
+    });
+    editors[language].on('change', () => {
+      if (!isResetting) { saveCode(); sendCode(); }
+    });
+  });
+  function getCode() {
+    return { html: editors.html.getValue(), css: editors.css.getValue(), js: editors.js.getValue() };
+  }
+  function sendCode() {
+    window.parent.postMessage({ type: 'EDITOR_CODE_UPDATE', code: getCode() }, window.location.origin);
+  }
+  function resetEditors() {
+    isResetting = true;
+    Object.keys(editors).forEach((language) => { editors[language].setValue(samples[language]); editors[language].clearHistory(); });
+    isResetting = false;
+    try { localStorage.removeItem(STORAGE_KEY); } catch (error) { /* Reset still completes. */ }
+    sendCode();
+    const activeTab = tabs.find((tab) => tab.classList.contains('is-active'));
+    const activeEditor = activeTab &amp;&amp; editors[activeTab.dataset.language];
+    if (activeEditor) activeEditor.focus();
+  }
+  function activateTab(tab) {
+    tabs.forEach((item) => {
+      const active = item === tab;
+      item.classList.toggle('is-active', active);
+      item.setAttribute('aria-selected', String(active));
+      item.tabIndex = active ? 0 : -1;
+    });
+    hosts.forEach((host) => {
+      host.hidden = host.dataset.language !== tab.dataset.language;
+      host.classList.toggle('is-visible', !host.hidden);
+    });
+    const activeEditor = editors[tab.dataset.language];
+    if (activeEditor) { activeEditor.refresh(); activeEditor.focus(); }
+  }
+  tabs.forEach((tab) => tab.addEventListener('click', () => activateTab(tab)));
+  window.codeEditors = editors;
+  window.getSelectedCode = (language) => editors[language] ? editors[language].getSelection() : '';
+  window.getCodeSelectionRange = (language) => {
+    const editor = editors[language];
+    return editor ? { from: editor.getCursor('from'), to: editor.getCursor('to') } : null;
+  };
+  window.replaceSelectedCode = (language, replacement) => {
+    const editor = editors[language];
+    if (!editor || typeof replacement !== 'string') return false;
+    editor.replaceSelection(replacement, 'around');
+    editor.focus();
+    return true;
+  };
+  window.addEventListener('message', (event) => {
+    if (event.source !== window.parent) return;
+    if (event.data?.type === 'LIVE_PREVIEW_READY' || event.data?.type === 'REQUEST_EDITOR_CODE') sendCode();
+    if (event.data?.type === 'RESET_EDITOR') resetEditors();
+  });
+  sendCode();
+})();
+
+&lt;/script>
+&lt;/body>
+&lt;/html>
+"></iframe>
+    <div class="splitter" role="separator" aria-label="Resize panels"
+         aria-orientation="vertical" aria-valuemin="25" aria-valuemax="75"
+         aria-valuenow="50" tabindex="0"></div>
+    <iframe class="component-frame"  title="Live Preview" srcdoc="&lt;!doctype html>
+&lt;html lang=&quot;en&quot;>
+&lt;head>
+  &lt;meta charset=&quot;UTF-8&quot;>
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;>
+  &lt;title>Live Preview&lt;/title>
+  &lt;style>
+:root {
+  color-scheme: dark;
+  --border: #273247;
+  --panel-header-height: 50px;
+  font-family: Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+  background: #111827;
+}
+
+.panel {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #111827;
+}
+
+.panel-header {
+  height: var(--panel-header-height);
+  min-height: var(--panel-header-height);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 0 16px;
+  background: #151e30;
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
+}
+
+.panel-header h1 {
+  margin: 0;
+  color: #e5eaf3;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.preview-area {
+  flex: 1;
+  min-height: 0;
+  background: #ffffff;
+}
+
+.preview-frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #ffffff;
+}
+
+&lt;/style>
+&lt;/head>
+&lt;body>
+  &lt;section class=&quot;panel preview-panel&quot; aria-labelledby=&quot;preview-title&quot;>
+    &lt;header class=&quot;panel-header live-header&quot; aria-label=&quot;Live Header&quot;>
+      &lt;h1 id=&quot;preview-title&quot;>Live Preview&lt;/h1>
+    &lt;/header>
+    &lt;div class=&quot;preview-area&quot; aria-label=&quot;Live code display area&quot;>
+      &lt;iframe class=&quot;preview-frame&quot; title=&quot;Rendered code preview&quot; sandbox=&quot;allow-scripts allow-modals&quot;>&lt;/iframe>
+    &lt;/div>
+  &lt;/section>
+  &lt;script>
+(() => {
+  const previewFrame = document.querySelector('.preview-frame');
+  if (!previewFrame) return;
+  const renderPreview = (code) => {
+    if (!code || typeof code !== 'object') return;
+    const html = typeof code.html === 'string' ? code.html : '';
+    const css = typeof code.css === 'string' ? code.css : '';
+    const js = typeof code.js === 'string' ? code.js : '';
+    const hasDoctype = /^\s*&lt;!doctype\s+html\s*>/i.test(html);
+    const hasHtml = /&lt;html\b[^>]*>/i.test(html);
+    const hasHead = /&lt;head\b[^>]*>/i.test(html);
+    const hasBody = /&lt;body\b[^>]*>/i.test(html);
+    if (!hasDoctype || !hasHtml || !hasHead || !hasBody) {
+      previewFrame.srcdoc = '&lt;!DOCTYPE html>&lt;html lang=&quot;en&quot;>&lt;head>&lt;meta charset=&quot;UTF-8&quot;>&lt;title>Invalid HTML Document&lt;/title>&lt;/head>&lt;body>&lt;p style=&quot;font-family:Arial,sans-serif;padding:20px;color:#b91c1c&quot;>The HTML editor must contain &lt;!DOCTYPE html>, &lt;html>, &lt;head>, and &lt;body> tags.&lt;/p>&lt;/body>&lt;/html>';
+      return;
+    }
+    const parsed = new DOMParser().parseFromString(html, 'text/html');
+    if (css.trim()) {
+      const style = parsed.createElement('style');
+      style.textContent = css;
+      parsed.head.appendChild(style);
+    }
+    if (js.trim()) {
+      const script = parsed.createElement('script');
+      script.textContent = js;
+      parsed.body.appendChild(script);
+    }
+    previewFrame.srcdoc = '&lt;!DOCTYPE html>\n' + parsed.documentElement.outerHTML;
+  };
+  window.addEventListener('message', (event) => {
+    if (event.source !== window.parent || event.data?.type !== 'EDITOR_CODE_UPDATE') return;
+    renderPreview(event.data.code);
+  });
+  window.parent.postMessage({ type: 'LIVE_PREVIEW_READY' }, '*');
+})();
+
+&lt;/script>
+&lt;/body>
+&lt;/html>
+"></iframe>
+  </main>
+
+  <iframe class="download-frame"  title="Download project" aria-label="Download dialog" srcdoc="&lt;!doctype html>
+&lt;html lang=&quot;en&quot;>
+&lt;head>
+  &lt;meta charset=&quot;UTF-8&quot;>
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;>
+  &lt;title>Download&lt;/title>
+  &lt;style>
+:root{color-scheme:dark;font-family:Arial,sans-serif;color:#e5eaf3}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0}
+body{background:transparent;pointer-events:none}
+.download-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,7,18,.72);pointer-events:auto}
+.download-overlay[hidden],[hidden]{display:none!important}
+.download-dialog{width:min(100%,460px);max-height:calc(100vh - 36px);overflow:auto;padding:22px;background:#151e30;border:1px solid #344158;border-radius:13px;box-shadow:0 22px 70px rgba(0,0,0,.45)}
+.dialog-header,.dialog-actions,.location-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.dialog-header h2{margin:0;font-size:18px;font-weight:600}
+.icon-button{width:30px;height:30px;border:0;border-radius:6px;background:transparent;color:#aeb9cb;font-size:24px;cursor:pointer}
+.icon-button:hover{background:#26344b;color:#fff}
+.dialog-description{margin:10px 0 18px;color:#aeb9cb;font-size:13px;line-height:1.5}
+.method-list{display:grid;gap:10px}
+.method-option{display:flex;align-items:flex-start;gap:12px;padding:14px;border:1px solid #344158;border-radius:9px;background:#101a2c;cursor:pointer}
+.method-option:has(input:checked){border-color:#8275f5;background:#1c2540}
+.method-option input,.file-choice input{accent-color:#8275f5}
+.method-copy{display:grid;gap:6px}
+.method-copy strong{font-size:13px}
+.method-copy small,.location-row small{color:#9eabc0;font-size:12px;line-height:1.45}
+.file-options{display:flex;gap:16px;flex-wrap:wrap;padding:13px 2px 2px}
+.file-choice{display:flex;align-items:center;gap:6px;color:#dce3ef;font-size:12px}
+.name-fields{display:grid;gap:7px;margin-top:17px}
+.field-label{color:#c6cfdd;font-size:12px}
+.text-field{width:100%;height:36px;padding:0 10px;border:1px solid #344158;border-radius:6px;background:#0d1627;color:#e5eaf3;font:inherit;font-size:13px;outline:none}
+.text-field:focus{border-color:#8275f5}
+.individual-names{display:grid;gap:7px}
+.location-row{margin-top:17px;padding:12px;border:1px solid #344158;border-radius:8px}
+.location-row>div{display:grid;gap:5px}
+.location-row strong{font-size:12px}
+.secondary-button,.primary-button{min-height:34px;padding:0 13px;border-radius:6px;font:inherit;font-size:12px;cursor:pointer}
+.secondary-button{border:1px solid #3a4961;background:#1b2940;color:#e5eaf3}
+.secondary-button:hover{border-color:#8275f5}
+.primary-button{border:1px solid #8275f5;background:#7064e8;color:#fff}
+.primary-button:hover{background:#8175f5}
+.dialog-actions{justify-content:flex-end;margin-top:19px}
+.error-message{margin:12px 0 0;color:#ff9a9a;font-size:12px;line-height:1.5}
+button:focus-visible,input:focus-visible{outline:2px solid #a69eff;outline-offset:2px}
+@media(max-width:420px){.download-dialog{padding:17px}.location-row{align-items:flex-start;flex-direction:column}.location-row .secondary-button{width:100%}}
+
+&lt;/style>
+&lt;/head>
+&lt;body>
+  &lt;div class=&quot;download-overlay&quot; hidden>
+    &lt;section class=&quot;download-dialog&quot; role=&quot;dialog&quot; aria-modal=&quot;true&quot; aria-labelledby=&quot;download-title&quot;>
+      &lt;header class=&quot;dialog-header&quot;>
+        &lt;h2 id=&quot;download-title&quot;>Download&lt;/h2>
+        &lt;button class=&quot;icon-button close-button&quot; type=&quot;button&quot; aria-label=&quot;Close&quot;>×&lt;/button>
+      &lt;/header>
+      &lt;p class=&quot;dialog-description&quot;>Choose how you want to download your project.&lt;/p>
+      &lt;div class=&quot;method-list&quot;>
+        &lt;label class=&quot;method-option&quot;>
+          &lt;input type=&quot;radio&quot; name=&quot;download-method&quot; value=&quot;single&quot; checked>
+          &lt;span class=&quot;method-copy&quot;>&lt;strong>Single HTML file&lt;/strong>&lt;small>Combine HTML, CSS and JavaScript into one standalone HTML file.&lt;/small>&lt;/span>
+        &lt;/label>
+        &lt;label class=&quot;method-option&quot;>
+          &lt;input type=&quot;radio&quot; name=&quot;download-method&quot; value=&quot;individual&quot;>
+          &lt;span class=&quot;method-copy&quot;>&lt;strong>Individual files&lt;/strong>&lt;small>Download selected files separately.&lt;/small>&lt;/span>
+        &lt;/label>
+      &lt;/div>
+      &lt;div class=&quot;file-options&quot; hidden>
+        &lt;label class=&quot;file-choice&quot;>&lt;input type=&quot;checkbox&quot; value=&quot;html&quot; checked> HTML&lt;/label>
+        &lt;label class=&quot;file-choice&quot;>&lt;input type=&quot;checkbox&quot; value=&quot;css&quot; checked> CSS&lt;/label>
+        &lt;label class=&quot;file-choice&quot;>&lt;input type=&quot;checkbox&quot; value=&quot;js&quot; checked> JS&lt;/label>
+      &lt;/div>
+      &lt;div class=&quot;name-fields&quot;>
+        &lt;label class=&quot;field-label&quot; for=&quot;single-filename&quot;>File name&lt;/label>
+        &lt;input class=&quot;text-field&quot; id=&quot;single-filename&quot; value=&quot;index.html&quot; autocomplete=&quot;off&quot;>
+        &lt;div class=&quot;individual-names&quot; hidden>
+          &lt;label class=&quot;field-label&quot; for=&quot;html-filename&quot;>HTML file name&lt;/label>
+          &lt;input class=&quot;text-field&quot; id=&quot;html-filename&quot; value=&quot;index.html&quot; autocomplete=&quot;off&quot;>
+          &lt;label class=&quot;field-label&quot; for=&quot;css-filename&quot;>CSS file name&lt;/label>
+          &lt;input class=&quot;text-field&quot; id=&quot;css-filename&quot; value=&quot;style.css&quot; autocomplete=&quot;off&quot;>
+          &lt;label class=&quot;field-label&quot; for=&quot;js-filename&quot;>JavaScript file name&lt;/label>
+          &lt;input class=&quot;text-field&quot; id=&quot;js-filename&quot; value=&quot;script.js&quot; autocomplete=&quot;off&quot;>
+        &lt;/div>
+      &lt;/div>
+      &lt;div class=&quot;location-row&quot;>
+        &lt;div>&lt;strong>Save location&lt;/strong>&lt;small class=&quot;location-status&quot;>Not selected&lt;/small>&lt;/div>
+        &lt;button class=&quot;secondary-button choose-location&quot; type=&quot;button&quot;>Choose location&lt;/button>
+      &lt;/div>
+      &lt;p class=&quot;error-message&quot; role=&quot;alert&quot; hidden>&lt;/p>
+      &lt;footer class=&quot;dialog-actions&quot;>
+        &lt;button class=&quot;secondary-button cancel-button&quot; type=&quot;button&quot;>Cancel&lt;/button>
+        &lt;button class=&quot;primary-button download-button&quot; type=&quot;button&quot;>Download&lt;/button>
+      &lt;/footer>
+    &lt;/section>
+  &lt;/div>
+  &lt;script>
+(() => {
+  const overlay = document.querySelector('.download-overlay');
+  const closeButton = document.querySelector('.close-button');
+  const cancelButton = document.querySelector('.cancel-button');
+  const downloadButton = document.querySelector('.download-button');
+  const chooseLocationButton = document.querySelector('.choose-location');
+  const methodInputs = [...document.querySelectorAll('input[name=&quot;download-method&quot;]')];
+  const fileOptions = document.querySelector('.file-options');
+  const singleFilename = document.querySelector('#single-filename');
+  const individualNames = document.querySelector('.individual-names');
+  const locationStatus = document.querySelector('.location-status');
+  const errorMessage = document.querySelector('.error-message');
+  let currentCode = null;
+  let directoryHandle = null;
+
+  const method = () => methodInputs.find((input) => input.checked)?.value || 'single';
+  const selectedFiles = () => [...document.querySelectorAll('.file-choice input:checked')].map((input) => input.value);
+  const showError = (message) => { errorMessage.textContent = message; errorMessage.hidden = false; };
+  const clearError = () => { errorMessage.textContent = ''; errorMessage.hidden = true; };
+  const openDialog = () => {
+    overlay.hidden = false;
+    directoryHandle = null;
+    locationStatus.textContent = 'Not selected';
+    clearError();
+    window.parent.postMessage({ type: 'DOWNLOAD_CODE_REQUEST' }, '*');
+    closeButton.focus();
+  };
+  const closeDialog = () => {
+    overlay.hidden = true;
+    directoryHandle = null;
+    window.parent.postMessage({ type: 'DOWNLOAD_DIALOG_CLOSED' }, '*');
+  };
+  const updateMethod = () => {
+    const individual = method() === 'individual';
+    fileOptions.hidden = !individual;
+    singleFilename.parentElement.querySelector('.field-label').hidden = individual;
+    singleFilename.hidden = individual;
+    individualNames.hidden = !individual;
+  };
+  methodInputs.forEach((input) => input.addEventListener('change', updateMethod));
+  closeButton.addEventListener('click', closeDialog);
+  cancelButton.addEventListener('click', closeDialog);
+  overlay.addEventListener('click', (event) => { if (event.target === overlay) closeDialog(); });
+  window.addEventListener('keydown', (event) => { if (event.key === 'Escape' &amp;&amp; !overlay.hidden) closeDialog(); });
+
+  const makeStandaloneHtml = (code) => {
+    const html = code.html || '';
+    if (!/^\s*&lt;!doctype\s+html\s*>/i.test(html) || !/&lt;html\b/i.test(html) || !/&lt;head\b/i.test(html) || !/&lt;body\b/i.test(html)) {
+      throw new Error('The HTML editor must contain &lt;!DOCTYPE html>, &lt;html>, &lt;head> and &lt;body> tags.');
+    }
+    const parsed = new DOMParser().parseFromString(html, 'text/html');
+    if (code.css?.trim()) {
+      const style = parsed.createElement('style');
+      style.textContent = code.css;
+      parsed.head.appendChild(style);
+    }
+    if (code.js?.trim()) {
+      const script = parsed.createElement('script');
+      script.textContent = code.js;
+      parsed.body.appendChild(script);
+    }
+    return '&lt;!DOCTYPE html>\n' + parsed.documentElement.outerHTML;
+  };
+  const normalizeFilename = (value, extension) => {
+    let name = value.trim().replace(/[\\/:*?&quot;&lt;>|]/g, '-');
+    if (!name) throw new Error('Enter a file name.');
+    if (!name.toLowerCase().endsWith('.' + extension)) name += '.' + extension;
+    return name;
+  };
+  const getFiles = () => {
+    if (!currentCode) throw new Error('Project code is not ready yet. Please try again.');
+    if (method() === 'single') return [{ name: normalizeFilename(singleFilename.value, 'html'), content: makeStandaloneHtml(currentCode) }];
+    const chosen = selectedFiles();
+    if (!chosen.length) throw new Error('Select at least one file.');
+    const config = {
+      html: ['html-filename', 'html', currentCode.html || ''],
+      css: ['css-filename', 'css', currentCode.css || ''],
+      js: ['js-filename', 'js', currentCode.js || '']
+    };
+    return chosen.map((key) => {
+      const [inputId, extension, content] = config[key];
+      return { name: normalizeFilename(document.getElementById(inputId).value, extension), content };
+    });
+  };
+  chooseLocationButton.addEventListener('click', async () => {
+    clearError();
+    try {
+      const pickerWindow = window.parent;
+      if (!pickerWindow.showDirectoryPicker) throw new Error('Folder selection is not supported in this browser. You can still download using the browser save option.');
+      directoryHandle = await pickerWindow.showDirectoryPicker({ mode: 'readwrite' });
+      locationStatus.textContent = 'Folder selected';
+    } catch (error) {
+      if (error.name !== 'AbortError') showError(error.message);
+    }
+  });
+  const saveWithDirectory = async (files) => {
+    for (const file of files) {
+      const handle = await directoryHandle.getFileHandle(file.name, { create: true });
+      const writable = await handle.createWritable();
+      await writable.write(file.content);
+      await writable.close();
+    }
+  };
+  const saveWithBrowser = async (files) => {
+    const pickerWindow = window.parent;
+    if (files.length === 1 &amp;&amp; pickerWindow.showSaveFilePicker) {
+      const file = files[0];
+      const extension = file.name.split('.').pop();
+      const mime = extension === 'html' ? 'text/html' : extension === 'css' ? 'text/css' : 'text/javascript';
+      const handle = await pickerWindow.showSaveFilePicker({ suggestedName: file.name, types: [{ description: 'Project file', accept: { [mime]: ['.' + extension] } }] });
+      const writable = await handle.createWritable();
+      await writable.write(file.content);
+      await writable.close();
+      return;
+    }
+    files.forEach((file) => {
+      const extension = file.name.split('.').pop();
+      const mime = extension === 'html' ? 'text/html' : extension === 'css' ? 'text/css' : 'text/javascript';
+      const blob = new Blob([file.content], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = file.name;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+  };
+  downloadButton.addEventListener('click', async () => {
+    clearError();
+    try {
+      const files = getFiles();
+      if (directoryHandle) await saveWithDirectory(files);
+      else await saveWithBrowser(files);
+      closeDialog();
+    } catch (error) {
+      if (error.name !== 'AbortError') showError(error.message);
+    }
+  });
+  window.addEventListener('message', (event) => {
+    if (event.source !== window.parent) return;
+    if (event.data?.type === 'OPEN_DOWNLOAD_DIALOG') openDialog();
+    if (event.data?.type === 'DOWNLOAD_CODE_UPDATE') currentCode = event.data.code;
+  });
+  updateMethod();
+  window.parent.postMessage({ type: 'DOWNLOAD_COMPONENT_READY' }, '*');
+})();
+&lt;/script>
+&lt;/body>
+&lt;/html>
+"></iframe>
+  <footer class="site-footer" aria-label="Footer"></footer>
+
+  <script>
+(() => {
+  const workspace = document.querySelector('.workspace');
+  const splitter = document.querySelector('.splitter');
+  const editorFrame = document.querySelector('iframe[src="sections/editor/index.html"]');
+  const liveFrame = document.querySelector('iframe[src="sections/live/index.html"]');
+  const resetFrame = document.querySelector('iframe[src="sections/reset/index.html"]');
+  const downloadFrame = document.querySelector('.download-frame');
+  const downloadButton = document.querySelector('[aria-label="Download"]');
+  if (!workspace || !splitter) return;
+
+  let dragging = false;
+  let latestCode = null;
+
+  const requestCodeFromEditor = () => editorFrame?.contentWindow?.postMessage({ type: 'REQUEST_EDITOR_CODE' }, '*');
+  const sendCodeToPreview = () => {
+    if (latestCode && liveFrame?.contentWindow) liveFrame.contentWindow.postMessage({ type: 'EDITOR_CODE_UPDATE', code: latestCode }, '*');
+  };
+  const sendCodeToDownload = () => {
+    if (latestCode && downloadFrame?.contentWindow) downloadFrame.contentWindow.postMessage({ type: 'DOWNLOAD_CODE_UPDATE', code: latestCode }, '*');
+  };
+
+  downloadButton?.addEventListener('click', () => {
+    downloadFrame?.classList.add('is-open');
+    downloadFrame?.contentWindow?.postMessage({ type: 'OPEN_DOWNLOAD_DIALOG' }, '*');
+    requestCodeFromEditor();
+  });
+
+  window.addEventListener('message', (event) => {
+    if (event.source === resetFrame?.contentWindow && event.data?.type === 'RESET_EDITOR_REQUEST') {
+      editorFrame?.contentWindow?.postMessage({ type: 'RESET_EDITOR' }, '*');
+      return;
+    }
+    if (event.source === downloadFrame?.contentWindow && event.data?.type === 'DOWNLOAD_DIALOG_CLOSED') {
+      downloadFrame.classList.remove('is-open');
+      return;
+    }
+    if (event.source === downloadFrame?.contentWindow && event.data?.type === 'DOWNLOAD_CODE_REQUEST') {
+      requestCodeFromEditor();
+      sendCodeToDownload();
+      return;
+    }
+    if (event.source === liveFrame?.contentWindow && event.data?.type === 'LIVE_PREVIEW_READY') {
+      requestCodeFromEditor();
+      sendCodeToPreview();
+      return;
+    }
+    if (event.source !== editorFrame?.contentWindow || event.data?.type !== 'EDITOR_CODE_UPDATE') return;
+    latestCode = event.data.code;
+    sendCodeToPreview();
+    sendCodeToDownload();
+  });
+
+  editorFrame?.addEventListener('load', requestCodeFromEditor);
+  liveFrame?.addEventListener('load', () => { requestCodeFromEditor(); sendCodeToPreview(); });
+  downloadFrame?.addEventListener('load', sendCodeToDownload);
+
+  const resize = (clientX) => {
+    const bounds = workspace.getBoundingClientRect();
+    const position = ((clientX - bounds.left) / bounds.width) * 100;
+    const value = Math.min(75, Math.max(25, position));
+    workspace.style.setProperty('--split', value + '%');
+    splitter.setAttribute('aria-valuenow', String(Math.round(value)));
+  };
+  splitter.addEventListener('pointerdown', (event) => {
+    dragging = true;
+    splitter.setPointerCapture(event.pointerId);
+    document.body.classList.add('is-resizing');
+    resize(event.clientX);
+  });
+  splitter.addEventListener('pointermove', (event) => { if (dragging) resize(event.clientX); });
+  const stopDragging = () => { dragging = false; document.body.classList.remove('is-resizing'); };
+  splitter.addEventListener('pointerup', stopDragging);
+  splitter.addEventListener('pointercancel', stopDragging);
+  splitter.addEventListener('lostpointercapture', stopDragging);
+  splitter.addEventListener('keydown', (event) => {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    event.preventDefault();
+    const current = Number(splitter.getAttribute('aria-valuenow')) || 50;
+    const next = Math.min(75, Math.max(25, current + (event.key === 'ArrowRight' ? 2 : -2)));
+    workspace.style.setProperty('--split', next + '%');
+    splitter.setAttribute('aria-valuenow', String(next));
+  });
+})();
+
+</script>
+</body>
+</html>
