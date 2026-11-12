@@ -5,7 +5,7 @@
 
   const modes = { html: 'htmlmixed', css: 'css', js: 'javascript' };
   const samples = {
-    html: '<h1>Hello World</h1>\n<p>This is a sample page.</p>\n<button>Click me</button>',
+    html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>My Page</title>\n</head>\n<body>\n  <h1>Hello World</h1>\n  <p>This is a sample page.</p>\n  <button>Click me</button>\n</body>\n</html>',
     css: 'body {\n  font-family: Arial, sans-serif;\n  padding: 20px;\n}\n\nh1 {\n  color: royalblue;\n}',
     js: "const button = document.querySelector('button');\n\nbutton.addEventListener('click', () => {\n  alert('Hello!');\n});"
   };
@@ -17,10 +17,15 @@
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
       if (!saved || typeof saved !== 'object') return {};
-      return Object.fromEntries(
+      const restored = Object.fromEntries(
         Object.keys(samples).filter((language) => typeof saved[language] === 'string')
           .map((language) => [language, saved[language]])
       );
+      if (typeof restored.html === 'string' && !/<html\\b/i.test(restored.html)) {
+        restored.html = samples.html
+          .replace('  <h1>Hello World</h1>\\n  <p>This is a sample page.</p>\\n  <button>Click me</button>', restored.html);
+      }
+      return restored;
     } catch (error) {
       return {};
     }
