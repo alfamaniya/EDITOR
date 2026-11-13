@@ -1,0 +1,1 @@
+document.querySelector('.editor-action')?.addEventListener('click',()=>window.parent.postMessage({type:'EDITOR_ACTION',action:'clear'},window.location.origin));
