@@ -201,11 +201,13 @@ body {
   &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css&quot;>
   &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css&quot;>
   &lt;style>
-
 :root {
   color-scheme: dark;
   --panel: #111827;
+  --panel-raised: #151e30;
+  --editor-surface: #0e1626;
   --border: #273247;
+  --border-soft: #202c40;
   --text: #e5eaf3;
   --muted: #8995a9;
   --accent: #8275f5;
@@ -218,46 +220,58 @@ body { overflow: hidden; background: var(--panel); color: var(--text); }
 .panel {
   width: 100%; height: 100%; min-width: 0; min-height: 0;
   display: flex; flex-direction: column; overflow: hidden;
-  border: 1px solid var(--border); border-radius: 8px; background: var(--panel);
+  border: 1px solid var(--border); border-radius: 9px; background: var(--panel);
 }
 .panel-header {
   height: var(--panel-header-height); min-height: var(--panel-header-height);
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 0 16px; background: #151e30; border-bottom: 1px solid var(--border);
-  box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 0 14px; background: var(--panel-raised); border-bottom: 1px solid var(--border);
 }
-.panel-header h1 { margin: 0; color: var(--text); font-size: 13px; font-weight: 600; letter-spacing: .2px; }
-.editor-header { display: flex; justify-content: space-between; }
-.editor-header-left { display: flex; align-items: center; gap: 8px; }
-.editor-action-frame { display: block; flex: 0 0 64px; width: 64px; height: 30px; border: 0; background: transparent; }
+.editor-header { justify-content: space-between; }
+.editor-header-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.editor-action-frame {
+  display: block; flex: 0 0 68px; width: 68px; height: 32px;
+  border: 0; border-radius: 6px; background: transparent; overflow: hidden;
+}
 .redo-button { margin-left: auto; }
 .editor-tabs {
-  width: 100%; min-height: 42px; display: flex; align-items: stretch; gap: 0;
+  width: 100%; min-height: 44px; display: flex; align-items: stretch; gap: 0;
   padding: 0; border-bottom: 1px solid var(--border); background: #0e1626;
 }
 .editor-tab {
   position: relative; flex: 1 1 0; min-width: 0; padding: 0 8px; border: 0;
   border-bottom: 2px solid transparent; background: transparent; color: var(--muted);
-  font: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
+  font: inherit; font-size: 12px; font-weight: 600; letter-spacing: .35px;
+  cursor: pointer; transition: color .16s ease, background .16s ease, border-color .16s ease;
 }
-.editor-tab:hover { color: var(--text); }
-.editor-tab.is-active { color: var(--text); border-bottom-color: var(--accent); }
+.editor-tab:hover { color: var(--text); background: rgb(255 255 255 / 3%); }
+.editor-tab.is-active { color: #fff; border-bottom-color: var(--accent); background: rgb(130 117 245 / 8%); }
 .editor-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
-.editor-area { position: relative; flex: 1; min-height: 0; background: #0e1626; }
+.editor-area { position: relative; flex: 1; min-height: 0; background: var(--editor-surface); }
 .code-editor { width: 100%; height: 100%; min-height: 0; }
 .code-editor[hidden] { display: none; }
 .CodeMirror {
-  width: 100%; height: 100%; background: #0e1626; color: #e5eaf3;
-  font-family: Consolas, &quot;Courier New&quot;, monospace; font-size: 14px; line-height: 1.6;
+  width: 100%; height: 100%; background: var(--editor-surface); color: var(--text);
+  font-family: Consolas, &quot;Courier New&quot;, monospace; font-size: 14px; line-height: 1.65;
 }
-.CodeMirror-gutters { background: #111b2c; border-right: 1px solid #273247; }
-.CodeMirror-linenumber { color: #68758b; padding: 0 8px 0 5px; }
+.CodeMirror-gutters { background: #111b2c; border-right: 1px solid var(--border-soft); }
+.CodeMirror-linenumber { color: #748198; padding: 0 9px 0 6px; }
 .CodeMirror-cursor { border-left: 2px solid #a99fff; }
 .CodeMirror-selected { background: rgb(130 117 245 / 32%) !important; }
 .CodeMirror-focused .CodeMirror-selected { background: rgb(130 117 245 / 42%) !important; }
 .CodeMirror-focused { outline: none; }
 .CodeMirror-scroll { min-height: 100%; }
-
+@media (max-width: 520px) {
+  :root { --panel-header-height: 46px; }
+  .panel { border-radius: 7px; }
+  .panel-header { padding: 0 8px; gap: 5px; }
+  .editor-header-left { gap: 5px; }
+  .editor-action-frame { flex-basis: 60px; width: 60px; height: 30px; }
+  .editor-tabs { min-height: 40px; }
+  .editor-tab { font-size: 11px; }
+  .CodeMirror { font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) { .editor-tab { transition: none; } }
 &lt;/style>
 &lt;/head>
 &lt;body>
@@ -265,18 +279,60 @@ body { overflow: hidden; background: var(--panel); color: var(--text); }
     &lt;header class=&quot;panel-header editor-header&quot; aria-label=&quot;Editor Header&quot;>
       &lt;div class=&quot;editor-header-left&quot;>
         &lt;iframe class=&quot;editor-action-frame&quot;  title=&quot;Undo&quot; srcdoc=&quot;&amp;lt;!doctype html>&amp;lt;html lang=&amp;quot;en&amp;quot;>&amp;lt;head>&amp;lt;meta charset=&amp;quot;UTF-8&amp;quot;>&amp;lt;meta name=&amp;quot;viewport&amp;quot; content=&amp;quot;width=device-width,initial-scale=1&amp;quot;>&amp;lt;title>Undo&amp;lt;/title>&amp;lt;style>
-.editor-action{height:30px;min-width:64px;padding:0 10px;border:1px solid #273247;border-radius:5px;background:#1b2940;color:#e5eaf3;font:12px Arial,sans-serif;cursor:pointer}.editor-action:hover{border-color:#8275f5;background:#222f49}.editor-action:focus-visible{outline:2px solid #8275f5;outline-offset:2px}html,body{margin:0;padding:0;background:transparent}
+* { box-sizing: border-box; }
+html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; background: transparent; }
+body { display: flex; align-items: center; justify-content: center; }
+.editor-action {
+  display: inline-flex; width: 100%; height: 32px; align-items: center; justify-content: center;
+  padding: 0 8px; border: 1px solid #33415a; border-radius: 6px;
+  background: #1b2940; color: #e5eaf3; font: 600 12px Arial, sans-serif;
+  letter-spacing: .15px; white-space: nowrap; cursor: pointer;
+  transition: background .16s ease, border-color .16s ease, transform .16s ease;
+}
+.editor-action:hover { border-color: #8275f5; background: #25334d; }
+.editor-action:active { transform: translateY(1px); }
+.editor-action:focus-visible { outline: 2px solid #8275f5; outline-offset: 2px; }
+@media (max-width: 520px) { .editor-action { height: 30px; padding: 0 5px; font-size: 11px; } }
+@media (prefers-reduced-motion: reduce) { .editor-action { transition: none; } }
 &amp;lt;/style>&amp;lt;/head>&amp;lt;body>&amp;lt;button class=&amp;quot;editor-action&amp;quot; type=&amp;quot;button&amp;quot; aria-label=&amp;quot;Undo&amp;quot;>Undo&amp;lt;/button>&amp;lt;script>
 document.querySelector('.editor-action')?.addEventListener('click',()=>window.parent.postMessage({type:'EDITOR_ACTION',action:'undo'},window.location.origin));
 &amp;lt;/script>&amp;lt;/body>&amp;lt;/html>&quot;>&lt;/iframe>
         &lt;iframe class=&quot;editor-action-frame&quot;  title=&quot;Clear&quot; srcdoc=&quot;&amp;lt;!doctype html>&amp;lt;html lang=&amp;quot;en&amp;quot;>&amp;lt;head>&amp;lt;meta charset=&amp;quot;UTF-8&amp;quot;>&amp;lt;meta name=&amp;quot;viewport&amp;quot; content=&amp;quot;width=device-width,initial-scale=1&amp;quot;>&amp;lt;title>Clear&amp;lt;/title>&amp;lt;style>
-.editor-action{height:30px;min-width:64px;padding:0 10px;border:1px solid #273247;border-radius:5px;background:#1b2940;color:#e5eaf3;font:12px Arial,sans-serif;cursor:pointer}.editor-action:hover{border-color:#d36b78;background:#392635}.editor-action:focus-visible{outline:2px solid #d36b78;outline-offset:2px}html,body{margin:0;padding:0;background:transparent}
+* { box-sizing: border-box; }
+html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; background: transparent; }
+body { display: flex; align-items: center; justify-content: center; }
+.editor-action {
+  display: inline-flex; width: 100%; height: 32px; align-items: center; justify-content: center;
+  padding: 0 8px; border: 1px solid #33415a; border-radius: 6px;
+  background: #1b2940; color: #e5eaf3; font: 600 12px Arial, sans-serif;
+  letter-spacing: .15px; white-space: nowrap; cursor: pointer;
+  transition: background .16s ease, border-color .16s ease, transform .16s ease;
+}
+.editor-action:hover { border-color: #d36b78; background: #392635; }
+.editor-action:active { transform: translateY(1px); }
+.editor-action:focus-visible { outline: 2px solid #d36b78; outline-offset: 2px; }
+@media (max-width: 520px) { .editor-action { height: 30px; padding: 0 5px; font-size: 11px; } }
+@media (prefers-reduced-motion: reduce) { .editor-action { transition: none; } }
 &amp;lt;/style>&amp;lt;/head>&amp;lt;body>&amp;lt;button class=&amp;quot;editor-action&amp;quot; type=&amp;quot;button&amp;quot; aria-label=&amp;quot;Clear&amp;quot;>Clear&amp;lt;/button>&amp;lt;script>
 document.querySelector('.editor-action')?.addEventListener('click',()=>window.parent.postMessage({type:'EDITOR_ACTION',action:'clear'},window.location.origin));
 &amp;lt;/script>&amp;lt;/body>&amp;lt;/html>&quot;>&lt;/iframe>
       &lt;/div>
       &lt;iframe class=&quot;editor-action-frame redo-button&quot;  title=&quot;Redo&quot; srcdoc=&quot;&amp;lt;!doctype html>&amp;lt;html lang=&amp;quot;en&amp;quot;>&amp;lt;head>&amp;lt;meta charset=&amp;quot;UTF-8&amp;quot;>&amp;lt;meta name=&amp;quot;viewport&amp;quot; content=&amp;quot;width=device-width,initial-scale=1&amp;quot;>&amp;lt;title>Redo&amp;lt;/title>&amp;lt;style>
-.editor-action{height:30px;min-width:64px;padding:0 10px;border:1px solid #273247;border-radius:5px;background:#1b2940;color:#e5eaf3;font:12px Arial,sans-serif;cursor:pointer}.editor-action:hover{border-color:#8275f5;background:#222f49}.editor-action:focus-visible{outline:2px solid #8275f5;outline-offset:2px}html,body{margin:0;padding:0;background:transparent}
+* { box-sizing: border-box; }
+html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; background: transparent; }
+body { display: flex; align-items: center; justify-content: center; }
+.editor-action {
+  display: inline-flex; width: 100%; height: 32px; align-items: center; justify-content: center;
+  padding: 0 8px; border: 1px solid #33415a; border-radius: 6px;
+  background: #1b2940; color: #e5eaf3; font: 600 12px Arial, sans-serif;
+  letter-spacing: .15px; white-space: nowrap; cursor: pointer;
+  transition: background .16s ease, border-color .16s ease, transform .16s ease;
+}
+.editor-action:hover { border-color: #8275f5; background: #25334d; }
+.editor-action:active { transform: translateY(1px); }
+.editor-action:focus-visible { outline: 2px solid #8275f5; outline-offset: 2px; }
+@media (max-width: 520px) { .editor-action { height: 30px; padding: 0 5px; font-size: 11px; } }
+@media (prefers-reduced-motion: reduce) { .editor-action { transition: none; } }
 &amp;lt;/style>&amp;lt;/head>&amp;lt;body>&amp;lt;button class=&amp;quot;editor-action&amp;quot; type=&amp;quot;button&amp;quot; aria-label=&amp;quot;Redo&amp;quot;>Redo&amp;lt;/button>&amp;lt;script>
 document.querySelector('.editor-action')?.addEventListener('click',()=>window.parent.postMessage({type:'EDITOR_ACTION',action:'redo'},window.location.origin));
 &amp;lt;/script>&amp;lt;/body>&amp;lt;/html>&quot;>&lt;/iframe>
