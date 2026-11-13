@@ -26,14 +26,8 @@ body { overflow: hidden; background: var(--panel); color: var(--text); }
 .panel-header h1 { margin: 0; color: var(--text); font-size: 13px; font-weight: 600; letter-spacing: .2px; }
 .editor-header { display: flex; justify-content: space-between; }
 .editor-header-left { display: flex; align-items: center; gap: 8px; }
+.editor-action-frame { display: block; flex: 0 0 64px; width: 64px; height: 30px; border: 0; background: transparent; }
 .redo-button { margin-left: auto; }
-.history-button {
-  min-width: 64px; height: 30px; padding: 0 10px; border: 1px solid var(--border);
-  border-radius: 5px; background: #1b2940; color: var(--text); font: inherit;
-  font-size: 12px; cursor: pointer;
-}
-.history-button:hover { border-color: var(--accent); background: #222f49; }
-.history-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .editor-tabs {
   width: 100%; min-height: 42px; display: flex; align-items: stretch; gap: 0;
   padding: 0; border-bottom: 1px solid var(--border); background: #0e1626;
