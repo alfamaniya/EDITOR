@@ -70,6 +70,8 @@ body.is-resizing { cursor: col-resize; user-select: none; }
 /* Main Header Libraries navigation */
 .libraries-button { display:inline-flex; align-items:center; justify-content:center; text-decoration:none; }
 
+.header-clear-all-frame { display:block; flex:0 0 72px; width:72px; height:32px; border:0; background:transparent; }
+
 </style>
 </head>
 <body>
@@ -347,6 +349,20 @@ body { overflow: hidden; background: var(--panel); color: var(--text); }
     const activeEditor = activeTab &amp;&amp; editors[activeTab.dataset.language];
     if (activeEditor) activeEditor.focus();
   }
+  function clearAllEditors() {
+    isResetting = true;
+    Object.keys(editors).forEach((language) => {
+      editors[language].setValue('');
+      editors[language].clearHistory();
+    });
+    isResetting = false;
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ html: '', css: '', js: '' })); }
+    catch (error) { /* Clearing the editors still completes. */ }
+    sendCode();
+    const activeTab = tabs.find((tab) => tab.classList.contains('is-active'));
+    const activeEditor = activeTab &amp;&amp; editors[activeTab.dataset.language];
+    if (activeEditor) activeEditor.focus();
+  }
   function activateTab(tab) {
     tabs.forEach((item) => {
       const active = item === tab;
@@ -379,6 +395,7 @@ body { overflow: hidden; background: var(--panel); color: var(--text); }
     if (event.source !== window.parent) return;
     if (event.data?.type === 'LIVE_PREVIEW_READY' || event.data?.type === 'REQUEST_EDITOR_CODE') sendCode();
     if (event.data?.type === 'RESET_EDITOR') resetEditors();
+    if (event.data?.type === 'CLEAR_ALL_EDITOR') clearAllEditors();
   });
   sendCode();
 })();
@@ -776,6 +793,7 @@ button:focus-visible,input:focus-visible{outline:2px solid #a69eff;outline-offse
   const editorFrame = document.querySelector('iframe[src="sections/editor/index.html"]');
   const liveFrame = document.querySelector('iframe[src="sections/live/index.html"]');
   const resetFrame = document.querySelector('iframe[src="sections/reset/index.html"]');
+  const clearAllFrame = document.querySelector('iframe[src="sections/clear-all/index.html"]');
   const downloadFrame = document.querySelector('.download-frame');
   const downloadButton = document.querySelector('[aria-label="Download"]');
   if (!workspace || !splitter) return;
@@ -798,6 +816,10 @@ button:focus-visible,input:focus-visible{outline:2px solid #a69eff;outline-offse
   });
 
   window.addEventListener('message', (event) => {
+    if (event.source === clearAllFrame?.contentWindow && event.data?.type === 'CLEAR_ALL_EDITOR_REQUEST') {
+      editorFrame?.contentWindow?.postMessage({ type: 'CLEAR_ALL_EDITOR' }, '*');
+      return;
+    }
     if (event.source === resetFrame?.contentWindow && event.data?.type === 'RESET_EDITOR_REQUEST') {
       editorFrame?.contentWindow?.postMessage({ type: 'RESET_EDITOR' }, '*');
       return;
