@@ -103,7 +103,27 @@
     editor.focus();
     return true;
   };
+  const actionFrames = {
+    undo: document.querySelector('iframe[src="../undo/index.html"]'),
+    clear: document.querySelector('iframe[src="../clear/index.html"]'),
+    redo: document.querySelector('iframe[src="../redo/index.html"]')
+  };
   window.addEventListener('message', (event) => {
+    if (event.data?.type === 'EDITOR_ACTION') {
+      const action = event.data.action;
+      if (!Object.prototype.hasOwnProperty.call(actionFrames, action) || event.source !== actionFrames[action]?.contentWindow) return;
+      const activeTab = tabs.find((tab) => tab.classList.contains('is-active'));
+      const activeEditor = activeTab && editors[activeTab.dataset.language];
+      if (!activeEditor) return;
+      if (action === 'undo') activeEditor.undo();
+      if (action === 'redo') activeEditor.redo();
+      if (action === 'clear') {
+        const lastLine = activeEditor.lastLine();
+        activeEditor.replaceRange('', { line: 0, ch: 0 }, { line: lastLine, ch: activeEditor.getLine(lastLine).length }, '+input');
+        activeEditor.focus();
+      }
+      return;
+    }
     if (event.source !== window.parent) return;
     if (event.data?.type === 'LIVE_PREVIEW_READY' || event.data?.type === 'REQUEST_EDITOR_CODE') sendCode();
     if (event.data?.type === 'RESET_EDITOR') resetEditors();
