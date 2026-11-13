@@ -19,9 +19,17 @@ body { overflow: hidden; background: var(--background); color: var(--text); }
 .site-header {
   top: 0; display: flex; align-items: center; padding: 0 16px;
   border-bottom: 1px solid var(--border);
+  overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin; scrollbar-color: #52617b #151e30;
 }
+.site-header::-webkit-scrollbar { height: 5px; }
+.site-header::-webkit-scrollbar-track { background: #151e30; }
+.site-header::-webkit-scrollbar-thumb { border-radius: 5px; background: #52617b; }
 .site-footer { bottom: 0; border-top: 1px solid var(--border); }
-.main-header-actions { display: flex; align-items: center; gap: 8px; }
+.main-header-actions {
+  display: flex; flex: 0 0 auto; align-items: center; gap: 8px;
+  width: max-content; min-width: max-content; height: 100%; flex-wrap: nowrap;
+}
 .main-header-button {
   min-width: 72px; height: 30px; padding: 0 10px;
   border: 1px solid var(--border); border-radius: 5px;
