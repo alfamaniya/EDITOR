@@ -12,10 +12,10 @@
   <section class="panel code-panel" aria-label="Code Editor">
     <header class="panel-header editor-header" aria-label="Editor Header">
       <div class="editor-header-left">
-        <button class="history-button" type="button" aria-label="Undo">Undo</button>
-        <button class="history-button" type="button" aria-label="Clear">Clear</button>
+        <iframe class="editor-action-frame" src="../undo/index.html" title="Undo"></iframe>
+        <iframe class="editor-action-frame" src="../clear/index.html" title="Clear"></iframe>
       </div>
-      <button class="history-button redo-button" type="button" aria-label="Redo">Redo</button>
+      <iframe class="editor-action-frame redo-button" src="../redo/index.html" title="Redo"></iframe>
     </header>
     <div class="editor-tabs" role="tablist" aria-label="Code languages">
       <button class="editor-tab is-active" id="html-tab" type="button" role="tab" aria-selected="true" aria-controls="html-editor" data-language="html">HTML</button>
