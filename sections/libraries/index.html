@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1020">
+  <title>Libraries | Editor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="library-header">
+    <a class="back-link" href="../../index.html" aria-label="Back to Editor">← Editor</a>
+    <div class="header-title"><span class="header-icon" aria-hidden="true">▦</span><div><h1>Libraries</h1><p>Browse and manage CSS and JavaScript libraries</p></div></div>
+  </header>
+  <main class="library-main">
+    <section class="catalog-section">
+      <div class="section-heading"><div><span class="eyebrow">LIBRARY CATALOG</span><h2>Popular Libraries</h2></div><span class="section-mark">01</span></div>
+      <p class="section-description">Search the catalog or filter libraries by type. Select a library to load its code from the CDN.</p>
+      <div class="catalog-controls">
+        <label class="field-label" for="librarySearch">Search</label><input id="librarySearch" type="search" placeholder="Search by name or purpose..." autocomplete="off">
+        <label class="field-label" for="libraryTypeFilter">Type</label><select id="libraryTypeFilter"><option value="all">All libraries</option><option value="css">CSS only</option><option value="js">JavaScript only</option></select>
+        <span id="catalogCount" class="catalog-count" aria-live="polite"></span>
+      </div>
+      <div id="catalogGrid" class="catalog-grid"></div>
+      <p class="catalog-note">Catalog entries are shortcuts, not automatically enabled dependencies. Add a library to Saved Libraries before using it in a project. Some libraries require additional files or setup.</p>
+    </section>
+    <section class="add-section">
+      <div class="section-heading"><div><span class="eyebrow">CUSTOM LIBRARY</span><h2>Add New Library</h2></div><span class="section-mark">02</span></div>
+      <div class="form-row"><label class="visually-hidden" for="libraryName">Library name</label><input id="libraryName" type="text" maxlength="100" placeholder="Library name (e.g. jQuery)"><label class="visually-hidden" for="libraryType">Library type</label><select id="libraryType"><option value="css">CSS</option><option value="js">JavaScript</option></select></div>
+      <label class="visually-hidden" for="libraryCode">Library code</label><textarea id="libraryCode" spellcheck="false" placeholder="Paste library code here..."></textarea>
+      <div class="form-footer"><span id="formStatus" role="status">Choose a catalog item or paste library code.</span><button id="addLibraryButton" type="button">Add to Libraries</button></div>
+    </section>
+    <section class="saved-section">
+      <div class="section-heading"><div><span class="eyebrow">YOUR COLLECTION</span><h2>Saved Libraries</h2></div><span id="savedCount" class="saved-count">0</span></div>
+      <div id="savedLibraries" class="saved-list"></div>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
