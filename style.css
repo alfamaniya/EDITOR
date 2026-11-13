@@ -57,3 +57,7 @@ body { overflow: hidden; background: var(--background); color: var(--text); }
 }
 .splitter:hover::before, .splitter:focus-visible::before { width: 2px; background: var(--accent); }
 body.is-resizing { cursor: col-resize; user-select: none; }
+
+
+/* Main Header Libraries navigation */
+.libraries-button { display:inline-flex; align-items:center; justify-content:center; text-decoration:none; }
