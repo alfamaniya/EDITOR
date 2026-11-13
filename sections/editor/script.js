@@ -61,6 +61,20 @@
     const activeEditor = activeTab && editors[activeTab.dataset.language];
     if (activeEditor) activeEditor.focus();
   }
+  function clearAllEditors() {
+    isResetting = true;
+    Object.keys(editors).forEach((language) => {
+      editors[language].setValue('');
+      editors[language].clearHistory();
+    });
+    isResetting = false;
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ html: '', css: '', js: '' })); }
+    catch (error) { /* Clearing the editors still completes. */ }
+    sendCode();
+    const activeTab = tabs.find((tab) => tab.classList.contains('is-active'));
+    const activeEditor = activeTab && editors[activeTab.dataset.language];
+    if (activeEditor) activeEditor.focus();
+  }
   function activateTab(tab) {
     tabs.forEach((item) => {
       const active = item === tab;
@@ -93,6 +107,7 @@
     if (event.source !== window.parent) return;
     if (event.data?.type === 'LIVE_PREVIEW_READY' || event.data?.type === 'REQUEST_EDITOR_CODE') sendCode();
     if (event.data?.type === 'RESET_EDITOR') resetEditors();
+    if (event.data?.type === 'CLEAR_ALL_EDITOR') clearAllEditors();
   });
   sendCode();
 })();
