@@ -4,6 +4,7 @@
   const editorFrame = document.querySelector('iframe[src="sections/editor/index.html"]');
   const liveFrame = document.querySelector('iframe[src="sections/live/index.html"]');
   const resetFrame = document.querySelector('iframe[src="sections/reset/index.html"]');
+  const clearAllFrame = document.querySelector('iframe[src="sections/clear-all/index.html"]');
   const downloadFrame = document.querySelector('.download-frame');
   const downloadButton = document.querySelector('[aria-label="Download"]');
   if (!workspace || !splitter) return;
@@ -26,6 +27,10 @@
   });
 
   window.addEventListener('message', (event) => {
+    if (event.source === clearAllFrame?.contentWindow && event.data?.type === 'CLEAR_ALL_EDITOR_REQUEST') {
+      editorFrame?.contentWindow?.postMessage({ type: 'CLEAR_ALL_EDITOR' }, '*');
+      return;
+    }
     if (event.source === resetFrame?.contentWindow && event.data?.type === 'RESET_EDITOR_REQUEST') {
       editorFrame?.contentWindow?.postMessage({ type: 'RESET_EDITOR' }, '*');
       return;
