@@ -261,7 +261,7 @@ body { overflow: hidden; background: var(--panel); color: var(--text); }
 &lt;/style>
 &lt;/head>
 &lt;body>
-  &lt;section class=&quot;panel code-panel&quot; aria-label=&quot;ذذذذ&quot;>
+  &lt;section class=&quot;panel code-panel&quot; aria-label=&quot;Code Editor&quot;>
     &lt;header class=&quot;panel-header editor-header&quot; aria-label=&quot;Editor Header&quot;>
       &lt;div class=&quot;editor-header-left&quot;>
         &lt;iframe class=&quot;editor-action-frame&quot;  title=&quot;Undo&quot; srcdoc=&quot;&amp;lt;!doctype html>&amp;lt;html lang=&amp;quot;en&amp;quot;>&amp;lt;head>&amp;lt;meta charset=&amp;quot;UTF-8&amp;quot;>&amp;lt;meta name=&amp;quot;viewport&amp;quot; content=&amp;quot;width=device-width,initial-scale=1&amp;quot;>&amp;lt;title>Undo&amp;lt;/title>&amp;lt;style>
