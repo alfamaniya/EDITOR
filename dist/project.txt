@@ -229,14 +229,8 @@ body { overflow: hidden; background: var(--panel); color: var(--text); }
 .panel-header h1 { margin: 0; color: var(--text); font-size: 13px; font-weight: 600; letter-spacing: .2px; }
 .editor-header { display: flex; justify-content: space-between; }
 .editor-header-left { display: flex; align-items: center; gap: 8px; }
+.editor-action-frame { display: block; flex: 0 0 64px; width: 64px; height: 30px; border: 0; background: transparent; }
 .redo-button { margin-left: auto; }
-.history-button {
-  min-width: 64px; height: 30px; padding: 0 10px; border: 1px solid var(--border);
-  border-radius: 5px; background: #1b2940; color: var(--text); font: inherit;
-  font-size: 12px; cursor: pointer;
-}
-.history-button:hover { border-color: var(--accent); background: #222f49; }
-.history-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .editor-tabs {
   width: 100%; min-height: 42px; display: flex; align-items: stretch; gap: 0;
   padding: 0; border-bottom: 1px solid var(--border); background: #0e1626;
@@ -270,10 +264,22 @@ body { overflow: hidden; background: var(--panel); color: var(--text); }
   &lt;section class=&quot;panel code-panel&quot; aria-label=&quot;Code Editor&quot;>
     &lt;header class=&quot;panel-header editor-header&quot; aria-label=&quot;Editor Header&quot;>
       &lt;div class=&quot;editor-header-left&quot;>
-        &lt;button class=&quot;history-button&quot; type=&quot;button&quot; aria-label=&quot;Undo&quot;>Undo&lt;/button>
-        &lt;button class=&quot;history-button&quot; type=&quot;button&quot; aria-label=&quot;Clear&quot;>Clear&lt;/button>
+        &lt;iframe class=&quot;editor-action-frame&quot;  title=&quot;Undo&quot; srcdoc=&quot;&amp;lt;!doctype html>&amp;lt;html lang=&amp;quot;en&amp;quot;>&amp;lt;head>&amp;lt;meta charset=&amp;quot;UTF-8&amp;quot;>&amp;lt;meta name=&amp;quot;viewport&amp;quot; content=&amp;quot;width=device-width,initial-scale=1&amp;quot;>&amp;lt;title>Undo&amp;lt;/title>&amp;lt;style>
+.editor-action{height:30px;min-width:64px;padding:0 10px;border:1px solid #273247;border-radius:5px;background:#1b2940;color:#e5eaf3;font:12px Arial,sans-serif;cursor:pointer}.editor-action:hover{border-color:#8275f5;background:#222f49}.editor-action:focus-visible{outline:2px solid #8275f5;outline-offset:2px}html,body{margin:0;padding:0;background:transparent}
+&amp;lt;/style>&amp;lt;/head>&amp;lt;body>&amp;lt;button class=&amp;quot;editor-action&amp;quot; type=&amp;quot;button&amp;quot; aria-label=&amp;quot;Undo&amp;quot;>Undo&amp;lt;/button>&amp;lt;script>
+document.querySelector('.editor-action')?.addEventListener('click',()=>window.parent.postMessage({type:'EDITOR_ACTION',action:'undo'},window.location.origin));
+&amp;lt;/script>&amp;lt;/body>&amp;lt;/html>&quot;>&lt;/iframe>
+        &lt;iframe class=&quot;editor-action-frame&quot;  title=&quot;Clear&quot; srcdoc=&quot;&amp;lt;!doctype html>&amp;lt;html lang=&amp;quot;en&amp;quot;>&amp;lt;head>&amp;lt;meta charset=&amp;quot;UTF-8&amp;quot;>&amp;lt;meta name=&amp;quot;viewport&amp;quot; content=&amp;quot;width=device-width,initial-scale=1&amp;quot;>&amp;lt;title>Clear&amp;lt;/title>&amp;lt;style>
+.editor-action{height:30px;min-width:64px;padding:0 10px;border:1px solid #273247;border-radius:5px;background:#1b2940;color:#e5eaf3;font:12px Arial,sans-serif;cursor:pointer}.editor-action:hover{border-color:#d36b78;background:#392635}.editor-action:focus-visible{outline:2px solid #d36b78;outline-offset:2px}html,body{margin:0;padding:0;background:transparent}
+&amp;lt;/style>&amp;lt;/head>&amp;lt;body>&amp;lt;button class=&amp;quot;editor-action&amp;quot; type=&amp;quot;button&amp;quot; aria-label=&amp;quot;Clear&amp;quot;>Clear&amp;lt;/button>&amp;lt;script>
+document.querySelector('.editor-action')?.addEventListener('click',()=>window.parent.postMessage({type:'EDITOR_ACTION',action:'clear'},window.location.origin));
+&amp;lt;/script>&amp;lt;/body>&amp;lt;/html>&quot;>&lt;/iframe>
       &lt;/div>
-      &lt;button class=&quot;history-button redo-button&quot; type=&quot;button&quot; aria-label=&quot;Redo&quot;>Redo&lt;/button>
+      &lt;iframe class=&quot;editor-action-frame redo-button&quot;  title=&quot;Redo&quot; srcdoc=&quot;&amp;lt;!doctype html>&amp;lt;html lang=&amp;quot;en&amp;quot;>&amp;lt;head>&amp;lt;meta charset=&amp;quot;UTF-8&amp;quot;>&amp;lt;meta name=&amp;quot;viewport&amp;quot; content=&amp;quot;width=device-width,initial-scale=1&amp;quot;>&amp;lt;title>Redo&amp;lt;/title>&amp;lt;style>
+.editor-action{height:30px;min-width:64px;padding:0 10px;border:1px solid #273247;border-radius:5px;background:#1b2940;color:#e5eaf3;font:12px Arial,sans-serif;cursor:pointer}.editor-action:hover{border-color:#8275f5;background:#222f49}.editor-action:focus-visible{outline:2px solid #8275f5;outline-offset:2px}html,body{margin:0;padding:0;background:transparent}
+&amp;lt;/style>&amp;lt;/head>&amp;lt;body>&amp;lt;button class=&amp;quot;editor-action&amp;quot; type=&amp;quot;button&amp;quot; aria-label=&amp;quot;Redo&amp;quot;>Redo&amp;lt;/button>&amp;lt;script>
+document.querySelector('.editor-action')?.addEventListener('click',()=>window.parent.postMessage({type:'EDITOR_ACTION',action:'redo'},window.location.origin));
+&amp;lt;/script>&amp;lt;/body>&amp;lt;/html>&quot;>&lt;/iframe>
     &lt;/header>
     &lt;div class=&quot;editor-tabs&quot; role=&quot;tablist&quot; aria-label=&quot;Code languages&quot;>
       &lt;button class=&quot;editor-tab is-active&quot; id=&quot;html-tab&quot; type=&quot;button&quot; role=&quot;tab&quot; aria-selected=&quot;true&quot; aria-controls=&quot;html-editor&quot; data-language=&quot;html&quot;>HTML&lt;/button>
@@ -397,7 +403,27 @@ body { overflow: hidden; background: var(--panel); color: var(--text); }
     editor.focus();
     return true;
   };
+  const actionFrames = {
+    undo: document.querySelector('iframe[src=&quot;../undo/index.html&quot;]'),
+    clear: document.querySelector('iframe[src=&quot;../clear/index.html&quot;]'),
+    redo: document.querySelector('iframe[src=&quot;../redo/index.html&quot;]')
+  };
   window.addEventListener('message', (event) => {
+    if (event.data?.type === 'EDITOR_ACTION') {
+      const action = event.data.action;
+      if (!Object.prototype.hasOwnProperty.call(actionFrames, action) || event.source !== actionFrames[action]?.contentWindow) return;
+      const activeTab = tabs.find((tab) => tab.classList.contains('is-active'));
+      const activeEditor = activeTab &amp;&amp; editors[activeTab.dataset.language];
+      if (!activeEditor) return;
+      if (action === 'undo') activeEditor.undo();
+      if (action === 'redo') activeEditor.redo();
+      if (action === 'clear') {
+        const lastLine = activeEditor.lastLine();
+        activeEditor.replaceRange('', { line: 0, ch: 0 }, { line: lastLine, ch: activeEditor.getLine(lastLine).length }, '+input');
+        activeEditor.focus();
+      }
+      return;
+    }
     if (event.source !== window.parent) return;
     if (event.data?.type === 'LIVE_PREVIEW_READY' || event.data?.type === 'REQUEST_EDITOR_CODE') sendCode();
     if (event.data?.type === 'RESET_EDITOR') resetEditors();
